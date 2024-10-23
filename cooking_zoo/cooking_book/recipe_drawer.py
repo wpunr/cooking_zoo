@@ -68,6 +68,7 @@ NormalBread = RecipeNode(root_type=Bread, id_num=get_next_default_id(), name="Br
 NormalLettuce = RecipeNode(root_type=Lettuce, id_num=get_next_default_id(), name="Lettuce", conditions=None)
 NormalCucumber = RecipeNode(root_type=Cucumber, id_num=get_next_default_id(), name="Cucumber", conditions=None)
 NormalApple = RecipeNode(root_type=Apple, id_num=get_next_default_id(), name="Apple", conditions=None)
+NormalWatermelon = RecipeNode(root_type=Watermelon, id_num=get_next_default_id(), name="Watermelon", conditions=None)
 
 # Salad Plates
 TomatoSaladPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), name="Plate", conditions=None,
@@ -122,6 +123,8 @@ IntermediateBread = RecipeNode(root_type=AbsorbingDeliversquare, id_num=get_next
                                name="IntermediateDeliversquare", conditions=None, contains=[NormalBread])
 IntermediateApple = RecipeNode(root_type=AbsorbingDeliversquare, id_num=get_next_default_id(),
                                name="IntermediateDeliversquare", conditions=None, contains=[NormalApple])
+IntermediateWatermelon = RecipeNode(root_type=AbsorbingDeliversquare, id_num=get_next_default_id(),
+                                    name="IntermediateDeliversquare", conditions=None, contains=[NormalWatermelon])
 IntermediateCucumber = RecipeNode(root_type=AbsorbingDeliversquare, id_num=get_next_default_id(),
                                   name="IntermediateDeliversquare", conditions=None, contains=[NormalCucumber])
 IntermediateLettuce = RecipeNode(root_type=AbsorbingDeliversquare, id_num=get_next_default_id(),
@@ -193,6 +196,10 @@ def get_intermediate_lettuce_recipe():
     return deepcopy(Recipe(IntermediateLettuce, DEFAULT_NUM_GOALS))
 
 
+def get_intermediate_watermelon_recipe():
+    return deepcopy(Recipe(IntermediateWatermelon, DEFAULT_NUM_GOALS))
+
+
 def get_no_recipe():
     return deepcopy(Recipe(no_recipe_node, DEFAULT_NUM_GOALS))
 
@@ -208,5 +215,6 @@ RECIPES = {"TomatoLettuceSalad": get_tomato_lettuce_salad_recipe(),
            "IntermediateApple": get_intermediate_apple_recipe(),
            "IntermediateCucumber": get_intermediate_cucumber_recipe(),
            "IntermediateLettuce": get_intermediate_lettuce_recipe(),
+           "IntermediateWatermelon": get_intermediate_watermelon_recipe(),
            "no_recipe": get_no_recipe()
            }

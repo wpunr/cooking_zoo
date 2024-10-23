@@ -3,12 +3,12 @@ from cooking_zoo.environment.manual_policy import ManualPolicy
 
 
 num_agents = 2
-max_steps = 400
+max_steps = 100
 render = True
 obs_spaces = ["tensor", "tensor"]
 action_scheme = "scheme3"
 meta_file = "jaamas3"
-level = "jaamas3_tight_room_apple_watermelon"
+level = "jaamas3_tight_room_apple_watermelon2"
 recipes = ["AppleWatermelon", "AppleWatermelon"]
 end_condition_all_dishes = True
 agent_visualization = ["robot", "human"]
@@ -23,16 +23,19 @@ obs, infos = env.reset()
 
 env.render()
 
-action_space = env.action_space("player_0")
+action_space = env.action_space(f"{recipes[0]}_0")
 
-manual_policy = ManualPolicy(env, agent_id="player_0")
+manual_policy = ManualPolicy(env, agent_id=f"{recipes[0]}_0")
 
-terminations = {"player_0": False}
+terminations = {f"{recipes[0]}_0": False}
+truncations = {f"{recipes[0]}_0": False}
 reward_sum = 0
 
-while not any(terminations.values()):
-    action = {"player_0": action_space.sample(), "player_1": manual_policy("player_0")}
+while not any(terminations.values()) and not any(truncations.values()):
+    action = {f"{recipes[0]}_0": action_space.sample(), f"{recipes[1]}_1": manual_policy(f"{recipes[0]}_0")}
     observations, rewards, terminations, truncations, infos = env.step(action)
-    reward_sum += rewards["player_0"]
+    reward_sum += rewards[f"{recipes[0]}_0"]
     print(rewards)
     env.render()
+
+print(reward_sum)

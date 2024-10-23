@@ -66,14 +66,16 @@ class CookingEnvironment(AECEnv):
 
         obs_spaces = obs_spaces or ["feature_vector"]
         self.allowed_obs_spaces = ["symbolic", "full", "feature_vector", "tensor"]
+        self.recipe_counter = {recipe: 0 for recipe in recipes}
         self.action_scheme = action_scheme
         self.action_scheme_class = self.action_scheme_map[self.action_scheme]
         assert len(set(obs_spaces + self.allowed_obs_spaces)) == len(self.allowed_obs_spaces), \
             f"Selected invalid obs spaces. Allowed {self.allowed_obs_spaces}"
         assert len(obs_spaces) != 0, f"Please select an observation space from: {self.allowed_obs_spaces}"
+        assert len(recipes) == num_agents, "Please provide as many recipes as there are num_agents"
         self.obs_spaces = obs_spaces
         self.allowed_objects = allowed_objects or []
-        self.possible_agents = ["player_" + str(r) for r in range(num_agents)]
+        self.possible_agents = [self.assign_agent_name(recipe) for recipe in recipes]
         self.agents = self.possible_agents[:]
         self.agent_visualization = agent_visualization or ["human"] * num_agents
         self.reward_scheme = reward_scheme or {"recipe_reward": 20, "max_time_penalty": -5, "recipe_penalty": 0,
@@ -171,7 +173,7 @@ class CookingEnvironment(AECEnv):
         self.filename = f"{self.level}_agents{self.num_agents}"
 
     def state(self):
-        return self.observe("player_0")
+        return self.observe(self.possible_agents[0])
 
     def observation_space(self, agent):
         return self.observation_spaces[agent]
@@ -460,4 +462,16 @@ class CookingEnvironment(AECEnv):
                     world_tensor[x, y, current_state_length:current_state_length + state_length] = features
             current_state_length += state_length
         return world_tensor
+
+    def assign_agent_name(self, recipe):
+        if recipe not in self.recipe_counter:
+            raise ValueError(f"Unknown recipe: {recipe}")
+
+        # Generate agent name using the current counter for the recipe
+        agent_name = f"{recipe}_{self.recipe_counter[recipe]}"
+
+        # Increment the counter for the recipe
+        self.recipe_counter[recipe] += 1
+
+        return agent_name
 
