@@ -42,6 +42,7 @@ class CookingWorld:
         self.active_agents = []
         self.status_changed = []
         self.relevant_agents = []
+        self.collision_detection = False
 
     def add_object(self, obj):
         self.world_objects[type(obj).__name__].append(obj)
@@ -227,8 +228,11 @@ class CookingWorld:
             target_locations.append(end_location)
             walkable.append(target_walkable)
         for idx, (action, target_location, target_walkable) in enumerate(zip(actions, target_locations, walkable)):
-            if target_location in target_locations[:idx] + target_locations[idx+1:] and target_walkable:
-                collision_actions.append(0)
+            if self.collision_detection:
+                if target_location in target_locations[:idx] + target_locations[idx+1:] and target_walkable:
+                    collision_actions.append(0)
+                else:
+                    collision_actions.append(action)
             else:
                 collision_actions.append(action)
         return collision_actions
