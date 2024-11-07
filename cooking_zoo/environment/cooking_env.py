@@ -65,7 +65,7 @@ class CookingEnvironment(AECEnv):
         super().__init__()
 
         obs_spaces = obs_spaces or ["feature_vector"]
-        self.allowed_obs_spaces = ["symbolic", "full", "feature_vector", "tensor"]
+        self.allowed_obs_spaces = ["symbolic", "full", "feature_vector", "tensor", "tensor_extended"]
         self.recipe_counter = {recipe: 0 for recipe in recipes}
         self.action_scheme = action_scheme
         self.action_scheme_class = self.action_scheme_map[self.action_scheme]
@@ -168,6 +168,11 @@ class CookingEnvironment(AECEnv):
         self.graphic_pipeline = None
         self.done_once = [False] * self.num_agents
         self.base_num_agents = num_agents
+
+    def get_extended_tensor_space_obs_space(self):
+        gym.spaces.Box(low=0, high=1, shape=(self.world.width, self.world.height,
+                                             self.graph_representation_length))
+        gym.spaces.Discrete(self.base_num_agents)
 
     def set_filename(self):
         self.filename = f"{self.level}_agents{self.num_agents}"

@@ -131,7 +131,7 @@ def parse_agents(world, level_object, num_agents):
                     raise ValueError(f"Position {x} {y} of agent is out of bounds set by the level layout!")
                 static_objects_loc = world.get_objects_at((x, y), Floor)
                 if not any([(x, y) == agent.location for agent in world.agents]) and static_objects_loc:
-                    agent = Agent((int(x), int(y)), world.COLORS[len(world.agents)],
+                    agent = Agent((int(x), int(y)), world.COLORS[agent_idx % len(world.COLORS)],
                                   'agent-' + str(len(world.agents) + 1))
                     name = "Agent"
                     if world.meta_object_information[name] <= world.loaded_object_counter[name]:
