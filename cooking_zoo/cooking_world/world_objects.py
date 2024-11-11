@@ -1440,9 +1440,9 @@ class Bread(ChopFood):
     def chop(self):
         if self.chop_state == ChopFoodStates.FRESH:
             self.chop_state = ChopFoodStates.CHOPPED
-            new_chopped_bread = Bread(self.location)
-            new_chopped_bread.chop_state = ChopFoodStates.CHOPPED
-            return [new_chopped_bread], [], True
+            # new_chopped_bread = Bread(self.location)
+            # new_chopped_bread.chop_state = ChopFoodStates.CHOPPED
+            return [], [], True
         else:
             return [], [], False
 

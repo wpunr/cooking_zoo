@@ -16,14 +16,15 @@ class CookingAgent(BaseAgent):
             self.other_agent = None
 
     def step(self, observation):
-        self.update_location(observation)
-        world = CustomObject(observation)
+        obs = observation[0]
+        world = observation[1]
+        self.update_location(obs)
         self.recipe_graph.update_recipe_state(world)
         node = self.find_node()
         if not node:
             action = 0
         else:
-            action = self.compute_optimal_action(node, observation)
+            action = self.compute_optimal_action(node, obs)
         # if not action:
         #     action = self.help_other_agent(observation)
         return action
@@ -39,7 +40,8 @@ class CookingAgent(BaseAgent):
         # check if contained node is already on plate
         node_obj, contains_obj = self.compute_closest_node_in_contains_to_get(node, observation)
         if not contains_obj:
-            return 0
+            action = self.create_fitting_world_object(node, observation)
+            return action
         if contains_obj.location == self.location:
             return self.walk_to_location(node_obj.location, observation)
         else:
@@ -65,12 +67,40 @@ class CookingAgent(BaseAgent):
             num_conditions = self.check_node_conditions(node, obj)
             dist = self.distance(self.location, obj.location)
             world_objects.append((obj, num_conditions, dist))
+        if not world_objects:
+            return self.create_fitting_world_object(node, observation)
         best_world_object = sorted(world_objects, key=lambda x: (x[1], x[2]))[0][0]
         if best_world_object:
             for condition in node.conditions:
                 if getattr(best_world_object, condition[0]) != condition[1]:
                     return self.handle_condition_sequence(best_world_object, observation, condition)
         return 0
+
+    def create_fitting_world_object(self, node, observation):
+        type_table = {Onion: OnionDispenser, Cucumber: CucumberDispenser, Apple: AppleDispenser,
+                      Tomato: TomatoDispenser, Pepper: PepperDispenser, Watermelon: WatermelonDispenser,
+                      Lettuce: LettuceDispenser, Bread: BreadDispenser, Plate: PlateDispenser}
+        if node.root_type not in type_table:
+            return 0
+        world_objects = self.get_abstract_world_objects(type_table[node.root_type], observation)
+
+        if not world_objects:
+            return 0
+
+        closest_object = None
+        min_distance = float('inf')  # Initialize to infinity
+
+        # Loop through the world objects to find the closest one
+        for obj in world_objects:
+            distance = self.distance(self.location, obj.location)
+            if distance < min_distance:
+                min_distance = distance
+                closest_object = obj
+
+        action =  self.walk_to_location(closest_object.location, observation)
+        return action
+
+
 
     def get_best_contains_obj(self, node, observation, node_world_object):
         closest_object = None
@@ -100,6 +130,14 @@ class CookingAgent(BaseAgent):
                 # else executes if the for loop completes without breaking
                 if self.reachable(obj.location, self.location, observation):
                     world_objects.append(obj)
+        return world_objects
+
+    def get_abstract_world_objects(self, obj_type, observation):
+        world_objects = []
+        for obj in observation[obj_type.cls_name()]:
+            # else executes if the for loop completes without breaking
+            if self.reachable(obj.location, self.location, observation):
+                world_objects.append(obj)
         return world_objects
 
     def get_closest_world_object(self, node, observation):

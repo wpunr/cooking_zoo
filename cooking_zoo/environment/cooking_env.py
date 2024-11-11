@@ -300,7 +300,7 @@ class CookingEnvironment(AECEnv):
             objects.update(self.world.world_objects)
             objects["Agent"] = self.world.agents
             sym_observation = copy.deepcopy(objects)
-            observation.append(sym_observation)
+            observation.append([sym_observation, self.world])
         if "feature_vector" == obs_space:
             observation.append(self.get_feature_vector(agent))
         if "tensor" == obs_space:

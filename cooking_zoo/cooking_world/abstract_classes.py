@@ -18,6 +18,10 @@ class Object(ABC):
     def name(self) -> str:
         return type(self).__name__
 
+    @classmethod
+    def cls_name(cls) -> str:
+        return cls.__name__
+
     def move_to(self, new_location):
         self.location = new_location
 
