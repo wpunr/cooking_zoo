@@ -3,7 +3,7 @@ from cooking_zoo.environment.manual_policy import ManualPolicy
 
 
 num_agents = 2
-max_steps = 100
+max_steps = 1000
 render = True
 obs_spaces = ["tensor", "tensor"]
 action_scheme = "scheme3"
