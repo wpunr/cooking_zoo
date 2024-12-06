@@ -4,7 +4,7 @@
                      {"Cutboard": {"COUNT": 1, "X_POSITION": [17], "Y_POSITION":  [4]}},
                      {"Cutboard": {"COUNT": 1, "X_POSITION": [5], "Y_POSITION":  [4]}},
                      {"Cutboard": {"COUNT": 1, "X_POSITION": [12], "Y_POSITION":  [4]}},
-                     {"IntermediateDeliversquare": {"COUNT": 4, "X_POSITION": [1, 2, 6, 7, 10, 11, 15, 16], "Y_POSITION":  [2]}},
+                     {"IntermediateDeliversquare": {"COUNT": 8, "X_POSITION": [1, 2, 6, 7, 10, 11, 15, 16], "Y_POSITION":  [2]}},
                      {"AbsorbingDeliversquare": {"COUNT": 1, "X_POSITION": [17], "Y_POSITION":  [5]}},
                      {"AbsorbingDeliversquare": {"COUNT": 1, "X_POSITION": [0], "Y_POSITION":  [5]}},
                      {"AbsorbingDeliversquare": {"COUNT": 1, "X_POSITION": [12], "Y_POSITION":  [6]}},

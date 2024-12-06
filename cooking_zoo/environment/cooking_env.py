@@ -312,7 +312,8 @@ class CookingEnvironment(AECEnv):
         rewards = [0] * len(self.recipe_graphs)
         open_goals = [[0]] * len(self.recipe_graphs)
         # Done if the episode maxes out
-        truncations = self.compute_truncated()
+
+        recipes_finished = []
 
         for idx, recipe in enumerate(self.recipe_graphs):
             # goals_before = recipe.goals_completed(self.num_goals)
@@ -324,7 +325,8 @@ class CookingEnvironment(AECEnv):
             open_goals[idx] = recipe.goals_completed(self.num_goals)
             #  malus = not recipe.completed() and self.done_once[idx]
             malus = 0
-            bonus = recipe.completed() and not self.done_once[idx]
+            bonus = recipe.completed()
+            recipes_finished.append(recipe.completed())
             # rewards[idx] += (sum(goals_before) - sum(open_goals[idx])) * self.reward_scheme["recipe_node_reward"]
             recipe_done_factor = int(completed_before and not completed_after)
             rewards[idx] += (num_fulfilled_after - num_fulfilled_before) * self.reward_scheme["recipe_node_reward"]
@@ -333,22 +335,30 @@ class CookingEnvironment(AECEnv):
             rewards[idx] += bonus * self.reward_scheme["recipe_reward"]
             rewards[idx] += malus * self.reward_scheme["recipe_penalty"]
             rewards[idx] += (self.reward_scheme["max_time_penalty"] / self.max_steps)
-            if self.done_once[idx]:
-                rewards[idx] = 0
-            #  self.done_once[idx] = self.done_once[idx] or recipe.completed()
-            self.done_once[idx] = False
+            # if self.done_once[idx]:
+            #     rewards[idx] = 0
+            self.done_once[idx] = self.done_once[idx] or recipe.completed()
+            # self.done_once[idx] = False
+
+        for idx, recipe in enumerate(self.recipe_names):
+            if recipe == "no_recipe":
+                rewards[idx] = sum([rewards[i] for i, recipe in enumerate(self.recipe_names) if recipe != "no_recipe"])
+
+        self.world.update_agent_status(recipes_finished)
 
         infos = self.compute_infos(active_agents_start, actions)
         if self.end_condition_all_dishes:
             recipe_dones = all(self.done_once)
         else:
-            recipe_dones = any(self.done_once)
+            recipe_dones = False
+
         dones = []
+        truncations = self.compute_truncated()
         for idx, truncation in enumerate(truncations):
             dones.append(False)
-            self.world.status_changed[idx] = recipe_dones or truncation
-            self.world.active_agents[idx] = not (recipe_dones or truncation)
-        self.compute_relevant_agents()
+            if self.world.active_agents[idx]:
+                self.world.status_changed[idx] = recipe_dones or truncation
+                self.world.active_agents[idx] = not (recipe_dones or truncation)
         return dones, rewards, open_goals, infos, truncations
 
     def compute_relevant_agents(self):
@@ -379,7 +389,7 @@ class CookingEnvironment(AECEnv):
         if self.t >= self.max_steps:
             self.termination_info = f"Terminating because {self.max_steps} timesteps passed"
             truncated = [True] * len(self.world.relevant_agents)
-            self.world.active_agents = [False] * self.num_agents
+            self.world.active_agents = [False] * len(self.possible_agents)
             self.world.status_changed = [True if agent in self.world.relevant_agents else False
                                          for agent in self.world.agents]
         else:

@@ -8,7 +8,7 @@ render = True
 obs_spaces = ["tensor", "tensor"]
 action_scheme = "scheme3"
 meta_file = "jaamas3"
-level = "jaamas3_tight_super_wide_room"
+level = "jaamas3_tight_room2"
 recipes = ["AppleWatermelon", "AppleWatermelon"]
 end_condition_all_dishes = True
 agent_visualization = ["robot", "human"]
@@ -32,7 +32,7 @@ truncations = {f"{recipes[0]}_0": False}
 reward_sum = 0
 
 while not any(terminations.values()) and not any(truncations.values()):
-    action = {f"{recipes[0]}_0": action_space.sample(), f"{recipes[1]}_1": manual_policy(f"{recipes[0]}_0")}
+    action = {f"{recipes[0]}_0": 0, f"{recipes[1]}_1": manual_policy(f"{recipes[0]}_0")}
     observations, rewards, terminations, truncations, infos = env.step(action)
     reward_sum += rewards[f"{recipes[0]}_0"]
     print(rewards)

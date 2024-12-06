@@ -118,8 +118,8 @@ class CookingWorld:
         self.perform_agent_actions(agents, actions)
         self.progress_world()
         self.resolve_linked_interactions()
-        self.handle_agent_spawn()
-        self.relevant_agents = self.compute_relevant_agents()
+        # self.handle_agent_spawn()
+        # self.relevant_agents = self.compute_relevant_agents()
 
     def resolve_primary_interaction(self, agent: Agent):
         interaction_location = self.get_target_location(agent, agent.orientation)
@@ -285,7 +285,7 @@ class CookingWorld:
         load_level.reset_world(self, num_agents)
 
     def handle_agent_spawn(self):
-        for i in range(len(self.active_agents)):
+        for i in range(1, len(self.active_agents)):
             if self.agent_grace_period[i] > 0:
                 self.agent_grace_period[i] -= 1
             else:
@@ -312,5 +312,28 @@ class CookingWorld:
     def compute_relevant_agents(self):
         return [agent for idx, agent in enumerate(self.agents) if self.active_agents[idx] or self.status_changed[idx]]
 
+    def update_agent_status(self, agents_in_consideration):
+        self.handle_agent_spawn_specific(agents_in_consideration)
+        self.relevant_agents = self.compute_relevant_agents()
+
     def compute_active_agents(self):
         return [agent for idx, agent in enumerate(self.agents) if self.active_agents[idx]]
+
+    def handle_agent_spawn_specific(self, agents_considered):
+        for i in range(1, len(self.active_agents)):
+            if self.agent_grace_period[i] > 0:
+                self.agent_grace_period[i] -= 1
+            else:
+                # active = self.active_agents[i]
+                if not agents_considered[i] and self.active_agents[i]:
+                    continue
+                # print("agent considered")
+                random_number = np.random.random()
+                # print(f"Random Number: {random_number}")
+                if self.active_agents.count(True) > 1 and self.active_agents[i] \
+                   and random_number < self.agent_despawn_rate:
+                    # print("despawning_agent")
+                    self.despawn_agent(i)
+                elif not self.active_agents[i] and random_number < self.agent_respawn_rate:
+                    # print("respawning_agent")
+                    self.respawn_agent(i)

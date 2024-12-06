@@ -1,9 +1,9 @@
 {
-  "LEVEL_LAYOUT": "------------------\n-                -\n------------------\n-  ---  --  ---  -\n-  ---  --  ---  -\n-                -\n------------------",
+  "LEVEL_LAYOUT": "------------------\n-                -\n------------------\n-                -\n-                -\n-                -\n------------------",
   "STATIC_OBJECTS": [{"Cutboard": {"COUNT": 1, "X_POSITION": [0], "Y_POSITION":  [4]}},
                      {"Cutboard": {"COUNT": 1, "X_POSITION": [17], "Y_POSITION":  [4]}},
-                     {"Cutboard": {"COUNT": 1, "X_POSITION": [5], "Y_POSITION":  [4]}},
-                     {"Cutboard": {"COUNT": 1, "X_POSITION": [12], "Y_POSITION":  [4]}},
+                     {"Cutboard": {"COUNT": 1, "X_POSITION": [4], "Y_POSITION":  [6]}},
+                     {"Cutboard": {"COUNT": 1, "X_POSITION": [13], "Y_POSITION":  [6]}},
                      {"IntermediateDeliversquare": {"COUNT": 8, "X_POSITION": [1, 2, 6, 7, 10, 11, 15, 16], "Y_POSITION":  [2]}},
                      {"AbsorbingDeliversquare": {"COUNT": 1, "X_POSITION": [17], "Y_POSITION":  [5]}},
                      {"AbsorbingDeliversquare": {"COUNT": 1, "X_POSITION": [0], "Y_POSITION":  [5]}},
@@ -23,7 +23,7 @@
                      {"LettuceDispenser": {"COUNT": 1, "X_POSITION": [1], "Y_POSITION":  [0]}}
   ],
   "DYNAMIC_OBJECTS": [],
-  "AGENTS": [{"MAX_COUNT": 1, "X_POSITION": [1, 6, 10, 16], "Y_POSITION":  [1]},
+  "AGENTS": [{"MAX_COUNT": 4, "X_POSITION": [1, 6, 10, 16], "Y_POSITION":  [1]},
              {"MAX_COUNT": 4, "X_POSITION": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "Y_POSITION":  [3, 4, 5, 6, 7]}],
   "DYNAMIC_EXCLUDED_POSITIONS": [[0, 0], [17, 0], [0, 6], [17, 6]]
 }
