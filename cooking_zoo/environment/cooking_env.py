@@ -213,6 +213,9 @@ class CookingEnvironment(AECEnv):
         return
 
     def step(self, action):
+        if self.terminations[self.agent_selection] or self.truncations[self.agent_selection]:
+            self._was_dead_step(action)
+            return
         if action is None:
             if any(self.world.status_changed):
                 self.agents = [agent for idx, agent in enumerate(self.possible_agents[:])
@@ -222,9 +225,7 @@ class CookingEnvironment(AECEnv):
                     return
                 self.agent_selection = self._agent_selector.next()
             return
-        if self.terminations[self.agent_selection] or self.truncations[self.agent_selection]:
-            self._was_dead_step(action)
-            return
+
         agent = self.agent_selection
         self.accumulated_actions.append(action)
         for idx, agent in enumerate(self.agents):
