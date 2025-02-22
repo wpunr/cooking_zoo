@@ -131,21 +131,25 @@ class CookingWorld:
         dynamic_objects = self.get_objects_at(interaction_location, DynamicObject)
         static_object = self.get_objects_at(interaction_location, StaticObject)[0]
 
-        if not agent.holding and not dynamic_objects:
+        # not holding anything and nothing to interact with
+        if agent.holding_empty() and not dynamic_objects:
             return
-        elif not agent.holding and dynamic_objects:
-            if static_object.releases():
-                # changed, to preserve content order when picking up again (LIFO)
-                object_to_grab = dynamic_objects[-1]
-                for obj in dynamic_objects:
-                    if hasattr(obj, "free") and obj.free:
-                        object_to_grab = obj
-                        break
-                if object_to_grab in static_object.content:
-                    agent.grab(object_to_grab)
-                    static_object.content.remove(object_to_grab)
-                    agent.interacts_with = [object_to_grab]
-        elif agent.holding:
+        # not holding anything but something to interact with
+        elif agent.holding_has_free() and dynamic_objects:
+            if not self.attempt_merge(agent, dynamic_objects, interaction_location, static_object):
+                if static_object.releases():
+                    # changed, to preserve content order when picking up again (LIFO)
+                    object_to_grab = dynamic_objects[-1]
+                    for obj in dynamic_objects:
+                        if hasattr(obj, "free") and obj.free:
+                            object_to_grab = obj
+                            break
+                    if object_to_grab in static_object.content:
+                        agent.grab(object_to_grab)
+                        static_object.content.remove(object_to_grab)
+                        agent.interacts_with = [object_to_grab]
+        # holding something that can maybe be merged
+        elif not agent.holding_empty():  # TODO left off on redoing the logic here
             self.attempt_merge(agent, dynamic_objects, interaction_location, static_object)
 
     def resolve_interaction_pick_up_special(self, agent: Agent):
@@ -153,7 +157,7 @@ class CookingWorld:
         if any([agent.location == interaction_location for agent in self.agents]):
             return
         dynamic_objects = self.get_objects_at(interaction_location, DynamicObject)
-        if not agent.holding and dynamic_objects:
+        if agent.holding_has_free() and dynamic_objects:
             content_obj_l = self.filter_obj(dynamic_objects, ContentObject)
             if len(content_obj_l) == 1:
                 try:
@@ -266,26 +270,32 @@ class CookingWorld:
     def attempt_merge(self, agent: Agent, dynamic_objects: List[DynamicObject], target_location, static_object):
         content_obj = self.filter_obj(dynamic_objects, ContentObject)
         if content_obj and len(content_obj) == 1:
-            if content_obj[0].accepts(agent.holding):
-                content_obj[0].add_content(agent.holding)
-                agent.put_down(target_location)
+            acceptable_agent_holding: Object = agent.find_appropriate_holding(content_obj[0].accepts)
+            if acceptable_agent_holding:
+                content_obj[0].add_content(acceptable_agent_holding)
+                agent.put_down(target_location, acceptable_agent_holding)
                 agent.interacts_with.append(content_obj[0])
-        elif isinstance(agent.holding, ContentObject) and dynamic_objects:
+        elif agent.find_appropriate_holding(lambda obj: isinstance(obj, ContentObject)) and dynamic_objects:
             pick_index = -1  # pick the last object put on
-            if agent.holding.accepts(dynamic_objects[pick_index]):
-                agent.holding.add_content(dynamic_objects[pick_index])
+            acceptable_agent_holding: ContentObject = agent.find_appropriate_holding(
+                lambda obj: isinstance(obj, ContentObject) and obj.accepts(dynamic_objects[pick_index]))
+            if acceptable_agent_holding:
+                acceptable_agent_holding.add_content(dynamic_objects[pick_index])
                 dynamic_objects[pick_index].move_to(agent.location)
                 agent.interacts_with.append(dynamic_objects[pick_index])
                 static_object.content.remove(dynamic_objects[pick_index])
         elif isinstance(static_object, ContentObject):
-            if static_object.accepts(agent.holding):
-                static_object.add_content(agent.holding)
-                agent.put_down(target_location)
+            acceptable_agent_holding = agent.find_appropriate_holding(static_object.accepts)
+            if acceptable_agent_holding:
+                static_object.add_content(acceptable_agent_holding)
+                agent.put_down(target_location, acceptable_agent_holding)
                 agent.interacts_with.append(static_object)
+        else:
+            return False
 
-    def load_level(self, level, num_agents):
+    def load_level(self, level, num_agents, agents_arms):
         reset_world_counter()
-        load_level.load_level(self, level, num_agents)
+        load_level.load_level(self, level, num_agents, agents_arms)
 
     def handle_agent_spawn(self):
         for i in range(len(self.active_agents)):

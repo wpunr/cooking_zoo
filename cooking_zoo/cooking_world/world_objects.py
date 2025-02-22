@@ -929,27 +929,37 @@ class Bread(ChopFood, ToasterFood):
 
 class Agent(Object):
 
-    def __init__(self, location, color, name):
+    def __init__(self, location, color, name, num_arms):
         unique_id = next(world_id_counter)
         super().__init__(unique_id, location, False, False)
-        self.holding = None
+        self._holding_capacity = num_arms
+        self.holding: list[None | Object] = [None] * self._holding_capacity
         self.color = color
         self.name = name
         self.orientation = 1
         self.interacts_with = []
 
     def grab(self, obj: DynamicObject):
-        self.holding = obj
-        obj.move_to(self.location)
+        """Insert `obj` into the first available slot in holding"""
 
-    def put_down(self, location):
-        self.holding.move_to(location)
-        self.holding = None
+        idx = self._find_free_holding()
+        if idx is not None:
+            self.holding[idx] = obj
+            obj.move_to(self.location)
+        else:
+            print("No free holding slot")
+
+    def put_down(self, location, obj: Object):
+        idx = self.holding.index(obj)  # raises if object not in holding
+        self.holding[idx] = None
+
+        obj.move_to(location)
 
     def move_to(self, new_location):
         self.location = new_location
-        if self.holding:
-            self.holding.move_to(new_location)
+        for held in self.holding:
+            if held is not None:
+                held.move_to(new_location)
 
     def change_orientation(self, new_orientation):
         assert 0 < new_orientation < 5
@@ -979,6 +989,39 @@ class Agent(Object):
 
     def display_text(self) -> str:
         return ""
+
+    def find_appropriate_holding(self, predicate: Callable[[Object], bool]) -> Object | None:
+        """
+        Find first object in Agent.holding that satisfies `predicate`
+
+        :param predicate: Callable[[Object], bool] function like StaticObject.accepts()
+        :return: satisfying object, else None
+        """
+        return next((obj for obj in self.holding if predicate(obj) and obj is not None), None)
+
+    def holding_empty(self):
+        """
+        :return: True if all holding slots are empty
+        """
+        return not any(self.holding)
+
+    def holding_has_free(self):
+        """
+        :return: True if any free holding slot exists
+        """
+        return any(held is None for held in self.holding)
+
+    # Private
+    def _find_free_holding(self) -> int | None:
+        """
+        Find first free slot in Agent.holding
+
+        :return: index of first free slot, or None if no free slot
+        """
+        for idx, val in enumerate(self.holding):
+            if val is None:
+                return idx
+        return None
 
 
 GAME_CLASSES = [m[1] for m in inspect.getmembers(sys.modules[__name__], inspect.isclass) if m[1].__module__ == __name__]

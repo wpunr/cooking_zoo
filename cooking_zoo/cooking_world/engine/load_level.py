@@ -8,7 +8,7 @@ import json
 import copy
 
 
-def load_new_style_level(world, level_name, num_agents):
+def load_new_style_level(world, level_name, num_agents, agents_arms):
     if level_name.endswith(".json"):
         file = level_name
     else:
@@ -23,7 +23,7 @@ def load_new_style_level(world, level_name, num_agents):
     parsing.parse_level_layout(world, level_object)
     parsing.parse_static_objects(world, level_object)
     parsing.parse_dynamic_objects(world, level_object)
-    parsing.parse_agents(world, level_object, num_agents)
+    parsing.parse_agents(world, level_object, num_agents, agents_arms)
 
 
 def cross_link(world):
@@ -52,14 +52,14 @@ def load_meta_file(meta_file):
     return meta_dict
 
 
-def load_level(world, level, num_agents):
+def load_level(world, level, num_agents, agents_arms):
     if world.init_world is not None:
         world.world_objects = defaultdict(list)
         world.abstract_index = defaultdict(list)
         world.world_objects.update(copy.deepcopy(world.init_world))
         world.agents = copy.deepcopy(world.init_agents)
     else:
-        load_new_style_level(world, level, num_agents)
+        load_new_style_level(world, level, num_agents, agents_arms)
         world.abstract_index = defaultdict(list)
         world.init_world = defaultdict(list)
         world.init_world.update(copy.deepcopy(world.world_objects))

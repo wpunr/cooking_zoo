@@ -25,7 +25,8 @@ FPS = 20
 
 def env(level, meta_file, num_agents, max_steps, recipes, agent_visualization=None, obs_spaces=None,
         end_condition_all_dishes=False, action_scheme="scheme1", render=False, reward_scheme=None,
-        agent_respawn_rate=0.0, grace_period=20, agent_despawn_rate=0.0, ignore_completed_recipes=False):
+        agent_respawn_rate=0.0, grace_period=20, agent_despawn_rate=0.0, ignore_completed_recipes=False,
+        agents_arms=None):
     """
     The env function wraps the environment in 3 wrappers by default. These
     wrappers contain logic that is common to many pettingzoo environments.
@@ -38,7 +39,7 @@ def env(level, meta_file, num_agents, max_steps, recipes, agent_visualization=No
                                   action_scheme=action_scheme, render=render, reward_scheme=reward_scheme,
                                   agent_respawn_rate=agent_respawn_rate, grace_period=grace_period,
                                   agent_despawn_rate=agent_despawn_rate,
-                                  ignore_completed_recipes=ignore_completed_recipes)
+                                  ignore_completed_recipes=ignore_completed_recipes, agents_arms=agents_arms)
     env_init = wrappers.CaptureStdoutWrapper(env_init)
     env_init = wrappers.OrderEnforcingWrapper(env_init)
     return env_init
@@ -63,7 +64,7 @@ class CookingEnvironment(AECEnv):
     def __init__(self, level, meta_file, num_agents, max_steps, recipes, agent_visualization=None, obs_spaces=None,
                  end_condition_all_dishes=False, allowed_objects=None, action_scheme="scheme1", render=False,
                  reward_scheme=None, agent_respawn_rate=0.0, grace_period=20, agent_despawn_rate=0.0,
-                 ignore_completed_recipes=False):
+                 ignore_completed_recipes=False, agents_arms=None):
         super().__init__()
 
         obs_spaces = obs_spaces or ["feature_vector"]
@@ -108,7 +109,12 @@ class CookingEnvironment(AECEnv):
         self.recipe_graphs = [self.recipes[recipe]() for recipe in recipes]
 
         self.termination_info = ""
-        self.world.load_level(level=self.level, num_agents=num_agents)
+
+        self.agents_arms = [1] * num_agents if agents_arms is None else agents_arms
+        if len(self.agents_arms) != num_agents:
+            raise ValueError("Number of agents_arms does not match the number of agents")
+        self.world.load_level(level=self.level, num_agents=num_agents, agents_arms=self.agents_arms)
+
         self.graph_representation_length = sum([cls.state_length() for cls in GAME_CLASSES])
         objects = defaultdict(list)
         objects.update(self.world.world_objects)
@@ -195,7 +201,7 @@ class CookingEnvironment(AECEnv):
             self.world = CookingWorld(self.action_scheme_class, self.meta_file,
                                       agent_respawn_rate=self.agent_respawn_rate, grace_period=self.grace_period,
                                       agent_despawn_rate=self.agent_despawn_rate)
-        self.world.load_level(level=self.level, num_agents=self.num_agents)
+        self.world.load_level(level=self.level, num_agents=self.num_agents, agents_arms=self.agents_arms)
 
         for recipe in self.recipe_graphs:
             recipe.update_recipe_state(self.world)
