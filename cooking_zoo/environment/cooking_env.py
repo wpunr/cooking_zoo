@@ -25,7 +25,7 @@ FPS = 20
 
 def env(level, meta_file, num_agents, max_steps, recipes, agent_visualization=None, obs_spaces=None,
         end_condition_all_dishes=False, action_scheme="scheme1", render=False, reward_scheme=None,
-        agent_respawn_rate=0.0, grace_period=20, agent_despawn_rate=0.0):
+        agent_respawn_rate=0.0, grace_period=20, agent_despawn_rate=0.0, ignore_completed_recipes=False):
     """
     The env function wraps the environment in 3 wrappers by default. These
     wrappers contain logic that is common to many pettingzoo environments.
@@ -37,7 +37,8 @@ def env(level, meta_file, num_agents, max_steps, recipes, agent_visualization=No
                                   obs_spaces, end_condition_all_dishes=end_condition_all_dishes,
                                   action_scheme=action_scheme, render=render, reward_scheme=reward_scheme,
                                   agent_respawn_rate=agent_respawn_rate, grace_period=grace_period,
-                                  agent_despawn_rate=agent_despawn_rate)
+                                  agent_despawn_rate=agent_despawn_rate,
+                                  ignore_completed_recipes=ignore_completed_recipes)
     env_init = wrappers.CaptureStdoutWrapper(env_init)
     env_init = wrappers.OrderEnforcingWrapper(env_init)
     return env_init
@@ -61,7 +62,8 @@ class CookingEnvironment(AECEnv):
 
     def __init__(self, level, meta_file, num_agents, max_steps, recipes, agent_visualization=None, obs_spaces=None,
                  end_condition_all_dishes=False, allowed_objects=None, action_scheme="scheme1", render=False,
-                 reward_scheme=None, agent_respawn_rate=0.0, grace_period=20, agent_despawn_rate=0.0):
+                 reward_scheme=None, agent_respawn_rate=0.0, grace_period=20, agent_despawn_rate=0.0,
+                 ignore_completed_recipes=False):
         super().__init__()
 
         obs_spaces = obs_spaces or ["feature_vector"]
@@ -132,6 +134,7 @@ class CookingEnvironment(AECEnv):
                               for agent in self.possible_agents}
         self.has_reset = True
         self.end_condition_all_dishes = end_condition_all_dishes
+        self.ignore_completed_recipes = ignore_completed_recipes
 
         self.recipe_mapping = dict(zip(self.possible_agents, self.recipe_graphs))
         self.agent_name_mapping = dict(zip(self.possible_agents, list(range(len(self.possible_agents)))))
@@ -248,6 +251,19 @@ class CookingEnvironment(AECEnv):
         dones, rewards, goals, infos, truncations = self.compute_rewards(active_agents_start, actions)
         info = {"t": self.t, "termination_info": self.termination_info}
 
+        world_deleted = self.world.to_delete
+        if world_deleted:
+            recipe_completed = False
+            for name in self.recipe_names:
+                recipe = RECIPES[name]()
+                recipe.update_recipe_state(world_deleted)
+                if recipe.completed():
+                    self.handle_absorbed_recipe(name, recipe)
+                    recipe_completed = True
+            if not recipe_completed:
+                print("Absorbed something that didn't complete a recipe")
+            world_deleted.clear()
+
         self.rewards = {}
         self.terminations = {}
         self.truncations = {}
@@ -260,7 +276,7 @@ class CookingEnvironment(AECEnv):
                 continue
 
             self.rewards[agent] = rewards[idx - offset_idx]
-            self.terminations[agent] = dones[idx - offset_idx]
+            self.terminations[agent] = dones[idx - offset_idx] if not self.ignore_completed_recipes else False
             self.truncations[agent] = truncations[idx - offset_idx]
             self.infos[agent] = {"goal_vector": self.goal_vectors[agent], **info, **infos[idx - offset_idx]}
             self._cumulative_rewards[agent] += rewards[idx - offset_idx]
@@ -384,3 +400,16 @@ class CookingEnvironment(AECEnv):
 
     def screenshot(self, path="screenshot.png"):
         self.graphic_pipeline.save_image(path)
+
+    def handle_absorbed_recipe(self, name, recipe):
+        """
+        Take completed recipes that were deleted and TODO ROS
+
+        Currently, this happens when an AbsorbingDeliversquare eats something on top of it. For the experiment, we are
+        interested in seeing 'dud' orders that were completed despite the task changing.
+
+        :param name: str Name of the recipe that came from the RECIPES dict
+        :param recipe: RecipeNode of a completed recipe that was deleted from the world
+        :return: None
+        """
+        print(name, recipe)

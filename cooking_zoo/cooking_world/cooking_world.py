@@ -42,6 +42,7 @@ class CookingWorld:
         self.active_agents = []
         self.status_changed = []
         self.relevant_agents = []
+        self.to_delete: list[Object] = []  # cooking_env will want to check these
 
     def add_object(self, obj):
         self.world_objects[type(obj).__name__].append(obj)
@@ -95,6 +96,7 @@ class CookingWorld:
                 if hasattr(obj.content[-1], 'free'):
                     obj.content[-1].free = True
 
+        self.to_delete.extend(obj_list_deleted)  # TODO check this came from a Deliversquare?
         self.handle_object_deletion(obj_list_deleted)
         self.handle_object_creation(obj_list_created)
 
