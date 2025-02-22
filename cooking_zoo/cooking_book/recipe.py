@@ -1,5 +1,7 @@
+from cooking_zoo.cooking_world.abstract_classes import Object
 from cooking_zoo.cooking_world.cooking_world import CookingWorld
 from enum import Enum
+from copy import copy, deepcopy  # TODO try non-deep copy
 
 import numpy as np
 
@@ -74,17 +76,28 @@ class Recipe:
     def completed(self):
         return self.root_node.marked
 
-    def update_recipe_state(self, world: CookingWorld):
+    def update_recipe_state(self, world: CookingWorld | list[Object]):
+        world = deepcopy(world)
+
         for node in reversed(self.node_list):
             node.marked = False
             node.world_objects = []
             if not all((contains.marked for contains in node.contains)):
                 continue
-            for obj in world.world_objects[node.name]:
+            for obj in world.world_objects[node.name] if not isinstance(world, list) else [x for x in world if
+                                                                                           x.name() == node.name]:
                 # check for all conditions
-                if self.check_conditions(node, obj):
+                if obj and self.check_conditions(node, obj):
                     node.world_objects.append(obj)
                     node.marked = True
+
+                    # once the object is used to fulfill a node, remove it from our working copy of world objects
+                    # and break the loop
+                    if not isinstance(world, list):
+                        world.world_objects[node.name].remove(obj)
+                    else:
+                        world.remove(obj)
+                    break
 
     def expand_child_nodes(self, node: RecipeNode):
         child_nodes = []

@@ -280,9 +280,9 @@ class ToasterFood(DynamicObject, Food, ABC):
 
     def __init__(self, unique_id, location):
         super().__init__(unique_id, location)
-        self.current_progress = 1
+        self.current_progress = 5
         self.max_progress = 0
-        self.min_progress = 1
+        self.min_progress = 5
         self.toast_state = ToasterFoodStates.FRESH
 
     def toast(self):

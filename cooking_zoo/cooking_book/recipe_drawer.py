@@ -57,6 +57,16 @@ ChoppedCarrot = RecipeNode(root_type=Carrot, id_num=get_next_default_id(), name=
                            conditions=[("chop_state", ChopFoodStates.CHOPPED)])
 MashedCarrot = RecipeNode(root_type=Carrot, id_num=get_next_default_id(), name="Carrot",
                           conditions=[("blend_state", BlenderFoodStates.MASHED)])
+ChoppedBread = RecipeNode(root_type=Bread, id_num=get_next_default_id(), name="Bread",
+                          conditions=[("chop_state", ChopFoodStates.CHOPPED)])
+ToastedBread = RecipeNode(root_type=Bread, id_num=get_next_default_id(), name="Bread",
+                          conditions=[("chop_state", ChopFoodStates.CHOPPED),
+                                      ("toast_state", ToasterFoodStates.TOASTED)])
+
+# # Needed for ToastedBreadPlate, where the two toasted breads cannot be the same...
+# ToastedBread2 = RecipeNode(root_type=Bread, id_num=get_next_default_id(), name="Bread",
+#                           conditions=[("chop_state", ChopFoodStates.CHOPPED),
+#                                       ("toast_state", ToasterFoodStates.TOASTED)])
 
 # Salad Plates
 TomatoSaladPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), name="Plate", conditions=None,
@@ -77,12 +87,15 @@ CucumberOnionPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), n
 
 AppleWatermelonPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), name="Plate", conditions=None,
                                   contains=[ChoppedApple, ChoppedWatermelon])
-# CarrotPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), name="Plate", conditions=None,
-#                          contains=[MashedCarrot])
+MashedCarrotPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), name="Plate", conditions=None,
+                               contains=[MashedCarrot])
+
+ToastedBreadPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), name="Plate", conditions=None,
+                               contains=[ToastedBread, deepcopy(ToastedBread)])  # chopping bread turns it into two
 
 # Delivered Salads
 TomatoSalad = RecipeNode(root_type=Deliversquare, id_num=get_next_default_id(), name="Deliversquare", conditions=None,
-                         contains=[TomatoSaladPlate], objects_to_seek=[Plate, Deliversquare])
+                         contains=[TomatoSaladPlate])
 TomatoLettuceSalad = RecipeNode(root_type=Deliversquare, id_num=get_next_default_id(), name="Deliversquare",
                                 conditions=None, contains=[TomatoLettucePlate])
 TomatoLettuceOnionSalad = RecipeNode(root_type=Deliversquare, id_num=get_next_default_id(), name="Deliversquare",
@@ -114,5 +127,16 @@ RECIPES = {"TomatoSalad": lambda: deepcopy(Recipe(TomatoSalad, DEFAULT_NUM_GOALS
            "AppleWatermelon": lambda: deepcopy(Recipe(AppleWatermelon, DEFAULT_NUM_GOALS)),
            "TomatoLettuceOnionSalad": lambda: deepcopy(Recipe(TomatoLettuceOnionSalad, DEFAULT_NUM_GOALS)),
            # "MashedCarrot": lambda: deepcopy(Recipe(MashedCarrot)),
-           "no_recipe": lambda: deepcopy(Recipe(no_recipe_node, DEFAULT_NUM_GOALS))
+
+           # for use with CookingEnvironment::handle_absorbed_recipe(), which doesn't send the Deliversquare
+           "no_recipe": lambda: deepcopy(Recipe(no_recipe_node, DEFAULT_NUM_GOALS)),
+           "TomatoSaladPlate": lambda: deepcopy(Recipe(TomatoSaladPlate, DEFAULT_NUM_GOALS)),
+           "TomatoLettucePlate": lambda: deepcopy(Recipe(TomatoLettucePlate, DEFAULT_NUM_GOALS)),
+           "CarrotBananaPlate": lambda: deepcopy(Recipe(CarrotBananaPlate, DEFAULT_NUM_GOALS)),
+           "MashedCarrotBananaPlate": lambda: deepcopy(Recipe(MashedCarrotBananaPlate, DEFAULT_NUM_GOALS)),
+           "CucumberOnionPlate": lambda: deepcopy(Recipe(CucumberOnionPlate, DEFAULT_NUM_GOALS)),
+           "AppleWatermelonPlate": lambda: deepcopy(Recipe(AppleWatermelonPlate, DEFAULT_NUM_GOALS)),
+           "TomatoLettuceOnionPlate": lambda: deepcopy(Recipe(TomatoLettuceOnionPlate, DEFAULT_NUM_GOALS)),
+           "MashedCarrotPlate": lambda: deepcopy(Recipe(MashedCarrotPlate, DEFAULT_NUM_GOALS)),
+           "ToastedBreadPlate": lambda: deepcopy(Recipe(ToastedBreadPlate, DEFAULT_NUM_GOALS))
            }

@@ -2,7 +2,7 @@ from cooking_zoo.cooking_world.abstract_classes import *
 from cooking_zoo.cooking_world.constants import *
 import inspect
 import sys
-from typing import List
+from collections.abc import Callable
 import itertools
 
 
@@ -448,6 +448,92 @@ class Blender(StaticObject, ProcessingObject, ContentObject, ToggleObject, Actio
         return ""
 
 
+class Toaster(StaticObject, ProcessingObject, ContentObject, ToggleObject, ActionObject):
+
+    def __init__(self, location):
+        unique_id = next(world_id_counter)
+        super().__init__(unique_id, location, False)
+        self.max_content = 2  # TODO
+
+    def process(self):
+        assert len(self.content) <= self.max_content, "Too many Dynamic Objects placed into the Toaster"
+
+        if self.content and self.toggle:
+            for cont in self.content:
+                print("toast")
+                cont.toast()
+
+            if all([cont.toast_state == ToasterFoodStates.TOASTED for cont in self.content]):
+                self.switch_toggle()
+
+                self.status = ActionObjectState.NOT_USABLE
+
+                for cont in self.content:
+                    cont.current_progress = cont.min_progress
+
+        return [], []  # no added or deleted objects
+
+    def accepts(self, dynamic_object) -> bool:
+        return isinstance(dynamic_object, ToasterFood) and (not self.toggle) and len(
+            self.content) + 1 <= self.max_content and dynamic_object.toast_state in {ToasterFoodStates.FRESH,
+                                                                                     ToasterFoodStates.READY}
+
+    def releases(self) -> bool:
+        valid = not self.toggle
+        if valid:
+            # if last removed, not usable
+            if len(self.content) - 1 == 0:
+                self.status = ActionObjectState.NOT_USABLE
+        return valid
+
+    def add_content(self, content):
+        if self.accepts(content):
+            self.content.append(content)
+            if len(self.content) == self.max_content:
+                for cont in self.content:
+                    cont.toast_state = ToasterFoodStates.READY
+                self.status = ActionObjectState.READY
+            for c in self.content:
+                c.free = False
+            self.content[-1].free = True
+
+    def action(self) -> Tuple[List, List, bool]:
+        valid = self.status == ActionObjectState.READY
+        if valid:
+            self.switch_toggle()
+        return [], [], valid
+
+    def numeric_state_representation(self):
+        return 1,
+
+    @classmethod
+    def state_length(cls):
+        return 1
+
+    def feature_vector_representation(self):
+        # TODO check this
+        return list(self.location) + [1]
+
+    @classmethod
+    def feature_vector_length(cls):
+        return 3
+
+    def file_name(self) -> str:
+        if self.toggle:
+            return "toaster_on"
+        elif self.content and all([cont.toast_state == ToasterFoodStates.TOASTED for cont in self.content]):
+            return "toaster_toasted_bread_2"
+        elif self.content:
+            return "toaster_fresh_bread_2"
+        else:
+            return "toaster_off"
+
+    def icons(self) -> List[str]:
+        return []
+
+    def display_text(self) -> str:
+        return ""
+
 class Plate(DynamicObject, ContentObject):
 
     def __init__(self, location):
@@ -790,7 +876,7 @@ class Watermelon(ChopFood):
         return f""
 
 
-class Bread(ChopFood):
+class Bread(ChopFood, ToasterFood):
 
     def __init__(self, location):
         unique_id = next(world_id_counter)
@@ -799,6 +885,7 @@ class Bread(ChopFood):
 
     def done(self):
         return self.chop_state == ChopFoodStates.CHOPPED
+        return self.chop_state == ChopFoodStates.CHOPPED or self.toast_state == ToasterFoodStates.TOASTED
 
     def chop(self):
         if self.chop_state == ChopFoodStates.FRESH:
@@ -818,13 +905,17 @@ class Bread(ChopFood):
 
     def feature_vector_representation(self):
         return list(self.location) + [int(not self.done()), int(self.done())] + [1]
+        return list(self.location) + [int(not self.done()), int(self.done())] + [
+            int(self.toast_state == ToasterFoodStates.TOASTED)] + [1]
 
     @classmethod
     def feature_vector_length(cls):
-        return 5
+        return 6
 
     def file_name(self) -> str:
-        if self.chop_state == ChopFoodStates.CHOPPED:
+        if self.toast_state == ToasterFoodStates.TOASTED:
+            return "ChoppedToastedBread"
+        elif self.chop_state == ChopFoodStates.CHOPPED:
             return "ChoppedFreshBread"
         else:
             return "Bread"
