@@ -75,10 +75,18 @@ class CookingWorld:
         return object_list
 
     def progress_world(self):
+        """backported then modified from drother moop branch"""
+
+        obj_list_deleted = []
+        obj_list_created = []
         for obj in self.abstract_index[ProcessingObject]:
-            obj.process()
+            creation, deletion = obj.process()
+            obj_list_deleted.extend(deletion)
+            obj_list_created.extend(creation)
         for obj in self.abstract_index[ProgressingObject]:
-            obj.progress()
+            creation, deletion = obj.progress()
+            obj_list_deleted.extend(deletion)
+            obj_list_created.extend(creation)
         for obj in self.abstract_index[ContentObject]:
             if len(obj.content) > 0:
                 for c in obj.content:
@@ -86,6 +94,9 @@ class CookingWorld:
                         c.free = False
                 if hasattr(obj.content[-1], 'free'):
                     obj.content[-1].free = True
+
+        self.handle_object_deletion(obj_list_deleted)
+        self.handle_object_creation(obj_list_created)
 
     def resolve_linked_interactions(self):
         for obj in self.abstract_index[LinkedObject]:
@@ -168,6 +179,16 @@ class CookingWorld:
             for new_obj in obj_list_created:
                 self.add_object(new_obj)
                 self.add_to_index(new_obj)
+
+    def handle_object_deletion(self, objects_to_delete):
+        for obj in objects_to_delete:
+            self.delete_object(obj)
+            self.delete_from_index(obj)
+
+    def handle_object_creation(self, objects_to_create):
+        for obj in objects_to_create:
+            self.add_object(obj)
+            self.add_to_index(obj)
 
     @staticmethod
     def get_target_location(agent, action):

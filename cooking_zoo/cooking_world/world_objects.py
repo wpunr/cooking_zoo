@@ -141,6 +141,69 @@ class Deliversquare(StaticObject, ContentObject):
         return ""
 
 
+class AbsorbingDeliversquare(StaticObject, ContentObject, ProgressingObject):
+    """Backported from drother moop branch"""
+
+    def __init__(self, location):
+        unique_id = next(world_id_counter)
+        super().__init__(unique_id, location, False)
+        self.internal_id = 1
+        self.timer = 1
+
+    def accepts(self, dynamic_object) -> bool:
+        return len(self.content) < self.max_content
+
+    def progress(self):
+        if self.content and self.timer > 0:
+            self.timer -= 1
+            deleted_obj_list = []
+        elif self.content and self.timer == 0:
+            self.timer = 1
+            content_objs = []
+            for cont in self.content:
+                content_objs.extend(get_recursive_content_objects(cont))
+            deleted_obj_list = content_objs
+            self.content = []
+        else:
+            deleted_obj_list = []
+        new_obj_list = []
+        return new_obj_list, deleted_obj_list
+
+    def add_content(self, content):
+        if self.accepts(content):
+            self.content.append(content)
+            for c in self.content:
+                c.free = False
+            self.content[-1].free = True
+
+    def releases(self) -> bool:
+        return False
+
+    def numeric_state_representation(self):
+        return 1,
+
+    def feature_vector_representation(self):
+        return list(self.location) + [1]
+
+    @classmethod
+    def feature_vector_length(cls):
+        return 3
+
+    @classmethod
+    def state_length(cls):
+        return 1
+
+    def file_name(self) -> str:
+        return "DeliverySquare"
+
+    def icons(self) -> List[str]:
+        return []
+
+    def display_text(self) -> str:
+        return ""
+
+
+
 class Switch(StaticObject, ContentObject, LinkedObject):
 
     def __init__(self, location):
@@ -333,6 +396,8 @@ class Blender(StaticObject, ProcessingObject, ContentObject, ToggleObject, Actio
 
                 for cont in self.content:
                     cont.current_progress = cont.min_progress
+
+        return [], []  # no added or deleted objects
 
     def accepts(self, dynamic_object) -> bool:
         return isinstance(dynamic_object, BlenderFood) and (not self.toggle) and len(self.content) + 1 <= self.max_content and dynamic_object.blend_state == BlenderFoodStates.FRESH
@@ -831,3 +896,12 @@ StringToClass = {game_cls.__name__: game_cls for game_cls in GAME_CLASSES}
 ClassToString = {game_cls: game_cls.__name__ for game_cls in GAME_CLASSES}
 
 
+def get_recursive_content_objects(obj):
+    """Backported from drother moop branch"""
+    if isinstance(obj, ContentObject):
+        other_objs = []
+        for cont_obj in obj.content:
+            other_objs.extend(get_recursive_content_objects(cont_obj))
+        return [obj] + other_objs
+    else:
+        return [obj]

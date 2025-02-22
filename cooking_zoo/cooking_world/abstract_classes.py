@@ -165,7 +165,10 @@ class ProgressingObject(ABC):
         super(ProgressingObject, self).__init__()
 
     @abstractmethod
-    def progress(self):
+    def progress(self) -> tuple[list, list]:
+        """
+        :return: list of created objects and list of deleted objects
+        """
         pass
 
 
