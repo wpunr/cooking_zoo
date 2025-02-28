@@ -59,7 +59,8 @@ class CookingEnvironment(AECEnv):
         "render_fps": FPS,
     }
 
-    action_scheme_map = {"scheme1": ActionScheme1, "scheme2": ActionScheme2, "scheme3": ActionScheme3}
+    action_scheme_map = {"scheme1": ActionScheme1, "scheme2": ActionScheme2, "scheme3": ActionScheme3,
+                         "scheme1_twohand": ActionScheme1_twohand}
 
     def __init__(self, level, meta_file, num_agents, max_steps, recipes, agent_visualization=None, obs_spaces=None,
                  end_condition_all_dishes=False, allowed_objects=None, action_scheme="scheme1", render=False,

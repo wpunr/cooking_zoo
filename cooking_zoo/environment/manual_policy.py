@@ -6,9 +6,9 @@ import pygame
 
 
 class ManualPolicy:
-
     action_scheme_to_human_key_map = {ActionScheme1: KeyToTuple_human1, ActionScheme2: KeyToTuple_Scheme2_human1,
-                                      ActionScheme3: KeyToTuple_human1}
+                                      ActionScheme3: KeyToTuple_human1,
+                                      ActionScheme1_twohand: KeyToTuple_human1_twohand}
 
     def __init__(self, env, agent_id="player_0", blocking=True):
 

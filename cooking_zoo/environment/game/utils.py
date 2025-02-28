@@ -44,3 +44,21 @@ KeyToTuple_human2 = {
     pygame.K_d: (1, 0),
     pygame.K_a: (-1, 0),
 }
+
+KeyToTuple_human1_twohand = {
+    pygame.K_UP: ActionScheme1.WALK_UP,  # 273
+    pygame.K_DOWN: ActionScheme1.WALK_DOWN,  # 274
+    pygame.K_RIGHT: ActionScheme1.WALK_RIGHT,  # 275
+    pygame.K_LEFT: ActionScheme1.WALK_LEFT,  # 276
+    pygame.K_SPACE: ActionScheme1.NO_OP,
+    pygame.K_f: ActionScheme1.INTERACT_PRIMARY,
+    pygame.K_g: ActionScheme1.INTERACT_PICK_UP_SPECIAL,
+    pygame.K_e: ActionScheme1.EXECUTE_ACTION,
+
+    pygame.K_KP1: ActionScheme1_twohand.INTERACT_ARM1,
+    pygame.K_KP2: ActionScheme1_twohand.INTERACT_PICK_UP_SPECIAL_ARM1,
+    pygame.K_KP3: ActionScheme1_twohand.EXECUTE_ACTION_ARM1,
+    pygame.K_KP4: ActionScheme1_twohand.INTERACT_ARM2,
+    pygame.K_KP5: ActionScheme1_twohand.INTERACT_PICK_UP_SPECIAL_ARM2,
+    pygame.K_KP6: ActionScheme1_twohand.EXECUTE_ACTION_ARM2,
+}

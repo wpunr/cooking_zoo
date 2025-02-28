@@ -939,18 +939,31 @@ class Agent(Object):
         self.orientation = 1
         self.interacts_with = []
 
-    def grab(self, obj: DynamicObject):
+    def grab(self, obj: DynamicObject, arm: int | None = None):
         """Insert `obj` into the first available slot in holding"""
+        if arm is None:
+            slc = slice(len(self.holding))
+        else:
+            slc = slice(arm, arm + 1)
 
-        idx = self._find_free_holding()
+        idx = self._find_free_holding(slc)
         if idx is not None:
             self.holding[idx] = obj
             obj.move_to(self.location)
         else:
             print("No free holding slot")
 
-    def put_down(self, location, obj: Object):
+    def put_down(self, location, obj: Object, arm: int | None = None):
         idx = self.holding.index(obj)  # raises if object not in holding
+
+        if arm is not None:
+            try:
+                slc = slice(arm, arm + 1)
+                self.holding[slc].index(obj)
+            except ValueError:
+                print("Agent is holding that object, but in a different arm")
+                return
+
         self.holding[idx] = None
 
         obj.move_to(location)
@@ -990,37 +1003,57 @@ class Agent(Object):
     def display_text(self) -> str:
         return ""
 
-    def find_appropriate_holding(self, predicate: Callable[[Object], bool]) -> Object | None:
+    def find_appropriate_holding(self, predicate: Callable[[Object], bool], arm: int | None = None) -> Object | None:
         """
         Find first object in Agent.holding that satisfies `predicate`
 
         :param predicate: Callable[[Object], bool] function like StaticObject.accepts()
+        :param arm: Which arm/holding slot to consider
         :return: satisfying object, else None
         """
-        return next((obj for obj in self.holding if predicate(obj) and obj is not None), None)
+        if arm is None:
+            slc = slice(len(self.holding))
+        else:
+            slc = slice(arm, arm + 1)
+        return next((obj for obj in self.holding[slc] if predicate(obj) and obj is not None), None)
 
-    def holding_empty(self):
+    def holding_empty(self, arm: int | None = None):
         """
+        :param arm: Which arm/holding slot to consider
         :return: True if all holding slots are empty
         """
         return not any(self.holding)
+        if arm is None:
+            slc = slice(len(self.holding))
+        else:
+            slc = slice(arm, arm + 1)
+        return not any(self.holding[slc])
 
-    def holding_has_free(self):
+    def holding_has_free(self, arm: int | None = None):
         """
+        :param arm: Which arm/holding slot to consider
         :return: True if any free holding slot exists
         """
-        return any(held is None for held in self.holding)
+        if arm is None:
+            slc = slice(len(self.holding))
+        else:
+            slc = slice(arm, arm + 1)
+        return any(held is None for held in self.holding[slc])
 
     # Private
-    def _find_free_holding(self) -> int | None:
+    def _find_free_holding(self, slc: slice) -> int | None:
         """
-        Find first free slot in Agent.holding
+        Find first free slot in Agent.holding, limited to /slc/
 
-        :return: index of first free slot, or None if no free slot
+        Note that return index is in terms of Agent.holding, not Agent.holding[slc]
+
+        :param slc: slice of Agent.holding to consider
+        :return: index of first free slot in Agent.holding, or None if no free slot.
         """
-        for idx, val in enumerate(self.holding):
+        slc_start = slc.start if slc.start is not None else 0
+        for idx, val in enumerate(self.holding[slc]):
             if val is None:
-                return idx
+                return idx + slc_start
         return None
 
 
