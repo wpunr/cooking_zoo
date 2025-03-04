@@ -148,6 +148,14 @@ class CookingWorld:
                         if hasattr(obj, "free") and obj.free:
                             object_to_grab = obj
                             break
+
+                    # unless there's a plate. With dispensers, sometimes the plate is 'newer' than its content, which
+                    # confused the above LIFO
+                    for obj in dynamic_objects:
+                        if isinstance(obj, Plate):
+                            object_to_grab = obj
+                            break
+
                     if object_to_grab in static_object.content:
                         agent.grab(object_to_grab, arm)
                         static_object.content.remove(object_to_grab)
@@ -174,7 +182,6 @@ class CookingWorld:
         else:
             return
 
-    def resolve_execute_action(self, agent: Agent):
     def resolve_execute_action(self, agent: Agent, arm: int | None = None):
         interaction_location = self.get_target_location(agent, agent.orientation)
         if any([agent.location == interaction_location for agent in self.agents]):
@@ -184,12 +191,8 @@ class CookingWorld:
             obj_list_created, obj_list_deleted, action_executed = static_object.action()
             if action_executed:
                 agent.interacts_with = [static_object]
-            for del_obj in obj_list_deleted:
-                self.delete_object(del_obj)
-                self.delete_from_index(del_obj)
-            for new_obj in obj_list_created:
-                self.add_object(new_obj)
-                self.add_to_index(new_obj)
+            self.handle_object_deletion(obj_list_deleted)
+            self.handle_object_creation(obj_list_created)
 
     def handle_object_deletion(self, objects_to_delete):
         for obj in objects_to_delete:
@@ -272,7 +275,6 @@ class CookingWorld:
                     located_objects.append(obj)
         return located_objects
 
-    def attempt_merge(self, agent: Agent, dynamic_objects: List[DynamicObject], target_location, static_object):
     def attempt_merge(self, agent: Agent, dynamic_objects: List[DynamicObject], target_location, static_object,
                       arm: int | None = None):
         content_obj = self.filter_obj(dynamic_objects, ContentObject)

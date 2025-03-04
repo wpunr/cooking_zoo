@@ -933,7 +933,7 @@ class Agent(Object):
         unique_id = next(world_id_counter)
         super().__init__(unique_id, location, False, False)
         self._holding_capacity = num_arms
-        self.holding: list[None | Object] = [None] * self._holding_capacity
+        self._holding: list[None | Object] = [None] * self._holding_capacity
         self.color = color
         self.name = name
         self.orientation = 1
@@ -1040,6 +1040,10 @@ class Agent(Object):
             slc = slice(arm, arm + 1)
         return any(held is None for held in self.holding[slc])
 
+    @property
+    def holding(self):
+        return self._holding
+
     # Private
     def _find_free_holding(self, slc: slice) -> int | None:
         """
@@ -1056,6 +1060,90 @@ class Agent(Object):
                 return idx + slc_start
         return None
 
+
+####### Dispensers Differ from Drother moop in that they add the new object to their content, not agent.holding #######
+def CreateDispenserClass(addedObjectCls, derived_name: str, file_name: str):
+    # TODO left off here adding extra members to follow moop PlateDispenser
+
+    def init_imp(self, location):
+        unique_id = next(world_id_counter)
+        super(cls, self).__init__(unique_id, location, False)
+        self.max_content = 1
+
+    def releases_imp(self) -> bool:
+        return True
+
+    def accepts_imp(self, dynamic_objects) -> bool:
+        return False
+
+    def action_imp(self) -> Tuple[List, List, bool]:
+        if len(self.content) < self.max_content:
+            new_obj = addedObjectCls(self.location)
+            self.add_content(new_obj)
+            new_obj_list = [new_obj]
+            deleted_obj_list = []
+            return new_obj_list, deleted_obj_list, True
+        else:
+            return [], [], False
+
+    def add_content_imp(self, content):
+        self.content.append(content)
+        for c in self.content:
+            c.free = False
+        self.content[-1].free = True
+
+    def numeric_state_representation_imp(self):
+        return 1,
+
+    def feature_vector_representation_imp(self):
+        return list(self.location) + [int(self.walkable), 1]
+
+    @classmethod
+    def state_length_imp(cls):
+        return 1
+
+    @classmethod
+    def feature_vector_length_imp(cls):
+        return 4
+
+    def file_name_imp(self) -> str:
+        # TODO improve dispenser icon
+        return file_name if not self.content else "Counter"
+
+    def icons_imp(self) -> List[str]:
+        return []
+
+    def display_text_imp(self) -> str:
+        return ""
+
+    class_dict = {
+        '__module__': __name__,
+        '__init__': init_imp,
+        'releases': releases_imp,
+        'accepts': accepts_imp,
+        'action': action_imp,
+        'add_content': add_content_imp,
+        'numeric_state_representation': numeric_state_representation_imp,
+        'feature_vector_representation': feature_vector_representation_imp,
+        'state_length': state_length_imp,
+        'feature_vector_length': feature_vector_length_imp,
+        'file_name': file_name_imp,
+        'icons': icons_imp,
+        'display_text': display_text_imp
+    }
+    cls = type(derived_name, (StaticObject, ContentObject, ActionObject), class_dict)
+    return cls
+
+
+PlateDispenser = CreateDispenserClass(Plate, "PlateDispenser", "DispenserPlate")
+AppleDispenser = CreateDispenserClass(Apple, "AppleDispenser", "DispenserApple")
+OnionDispenser = CreateDispenserClass(Onion, "OnionDispenser", "DispenserOnion")
+BananaDispenser = CreateDispenserClass(Banana, "BananaDispenser", "DispenserBanana")
+CarrotDispenser = CreateDispenserClass(Carrot, "CarrotDispenser", "DispenserCarrot")
+TomatoDispenser = CreateDispenserClass(Tomato, "TomatoDispenser", "DispenserTomato")
+LettuceDispenser = CreateDispenserClass(Lettuce, "LettuceDispenser", "DispenserLettuce")
+WatermelonDispenser = CreateDispenserClass(Watermelon, "WatermelonDispenser", "DispenserWatermelon")
+BreadDispenser = CreateDispenserClass(Bread, "BreadDispenser", "DispenserBread")
 
 GAME_CLASSES = [m[1] for m in inspect.getmembers(sys.modules[__name__], inspect.isclass) if m[1].__module__ == __name__]
 

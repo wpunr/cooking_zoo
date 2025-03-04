@@ -5,7 +5,9 @@ import cooking_zoo.cooking_book.recipe
 from cooking_zoo.cooking_world.abstract_classes import DynamicObject, StaticObject, ContentObject
 from cooking_zoo.cooking_world.constants import ChopFoodStates, ToasterFoodStates
 from cooking_zoo.cooking_world.cooking_world import CookingWorld
-from cooking_zoo.cooking_world.world_objects import Lettuce, Tomato, Plate, Deliversquare, Bread, Counter, Agent
+from cooking_zoo.cooking_world.world_objects import Lettuce, Tomato, Plate, Deliversquare, Bread, Counter, Agent, \
+    PlateDispenser, AppleDispenser, OnionDispenser, BananaDispenser, CarrotDispenser, TomatoDispenser, LettuceDispenser, \
+    WatermelonDispenser, BreadDispenser
 from cooking_zoo.cooking_book.recipe import Recipe
 from cooking_zoo.cooking_book.recipe_drawer import TomatoLettucePlate, ChoppedLettuce, ChoppedTomato, \
     TomatoLettuceSalad, ChoppedOnion, DEFAULT_NUM_GOALS, ChoppedBread, ToastedBread, ToastedBreadPlate
@@ -33,6 +35,7 @@ def example_environment(agents_arms=None):
                        render=render,
                        reward_scheme=reward_scheme, agents_arms=agents_arms)
     return env, recipes
+
 
 class TestCookingZoo_heuristic_agent:
     def test_cooking_zoo(self):
@@ -85,6 +88,7 @@ class TestCookingZoo_heuristic_agent:
         print(f'total: {cumulative}')
         print(f'time: {time.time() - start} steps: {env.unwrapped.t}')
         assert env.unwrapped.t < 40
+
 
 class TestCookingZoo:
     def test_manual_policy(self):
@@ -295,7 +299,7 @@ class TestCookingZoo:
         assert lettuce in counter.content
 
     def test_agent_holding(self):
-        tomato1 = Tomato((0,0))
+        tomato1 = Tomato((0, 0))
         tomato2 = Tomato((0, 0))
         tomato3 = Tomato((0, 0))
         numarms = 2
@@ -306,12 +310,11 @@ class TestCookingZoo:
         agent.grab(tomato3)
         assert tomato1 in agent.holding and tomato2 in agent.holding and tomato3 not in agent.holding
 
-        agent.put_down((99,99), tomato1)
-        agent.put_down((99,99), tomato2)
+        agent.put_down((99, 99), tomato1)
+        agent.put_down((99, 99), tomato2)
 
         with pytest.raises(ValueError):
-            agent.put_down((99,99), tomato3)
-
+            agent.put_down((99, 99), tomato3)
 
     @pytest.mark.skip(reason="TODO")
     def test_two_arms_resolve_primary_interaction(self):
@@ -350,3 +353,13 @@ class TestCookingZoo:
     @pytest.mark.skip(reason="TODO")
     def test_two_arms_resolve_interaction_special_explicit_arm(self):
         pass  # just check the agent.holding_has_free()
+
+    def test_dispensers(self):
+        for cls in {PlateDispenser, AppleDispenser, OnionDispenser, BananaDispenser, CarrotDispenser, TomatoDispenser,
+                    LettuceDispenser, WatermelonDispenser, BreadDispenser}:
+            dispenser = cls((0, 0))
+            added, removed, suc = dispenser.action()
+            assert len(added) == 1
+            assert removed == []
+            assert suc
+            assert len(dispenser.content) == 1
