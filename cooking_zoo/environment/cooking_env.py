@@ -1,6 +1,7 @@
 # Other core modules
 import copy
 
+from cooking_zoo.cooking_book.recipe import Recipe, RecipeNode
 from cooking_zoo.cooking_world.cooking_world import CookingWorld
 from cooking_zoo.cooking_world.world_objects import *
 from cooking_zoo.cooking_world.actions import *
@@ -170,6 +171,9 @@ class CookingEnvironment(AECEnv):
         # get one hot numpy vector
         self.goal_vectors = dict(zip(self.agents, [np.eye(len(self.loaded_recipes))[i] for i in idx]))
 
+        self.dhtt_completed_recipes: list[RecipeNode] = []
+        self.dhtt_dud_recipes: list[RecipeNode] = []
+
     def set_filename(self):
         self.filename = f"{self.level}_agents{self.num_agents}"
 
@@ -268,6 +272,11 @@ class CookingEnvironment(AECEnv):
                     self.handle_absorbed_recipe(name, recipe)
                     recipe_completed = True
             if not recipe_completed:
+                for name in RECIPES.keys():
+                    recipe = RECIPES[name]()
+                    recipe.update_recipe_state(world_deleted)
+                    if recipe.completed():
+                        self.handle_dud_recipe(name, recipe)
                 print("Absorbed something that didn't complete a recipe")
             world_deleted.clear()
 
@@ -408,15 +417,27 @@ class CookingEnvironment(AECEnv):
     def screenshot(self, path="screenshot.png"):
         self.graphic_pipeline.save_image(path)
 
-    def handle_absorbed_recipe(self, name, recipe):
+    def handle_absorbed_recipe(self, name, recipe: Recipe):
         """
-        Take completed recipes that were deleted and TODO ROS
+        Take completed recipes that were deleted and simply add them to a list, which our ROS node picks up later
 
-        Currently, this happens when an AbsorbingDeliversquare eats something on top of it. For the experiment, we are
-        interested in seeing 'dud' orders that were completed despite the task changing.
+        Currently, this happens when an AbsorbingDeliversquare eats something on top of it.
 
         :param name: str Name of the recipe that came from the RECIPES dict
-        :param recipe: RecipeNode of a completed recipe that was deleted from the world
+        :param recipe: Recipe (not a RecipeNode) of a completed recipe that was deleted from the world
         :return: None
         """
         print(name, recipe)
+        self.dhtt_completed_recipes.append(recipe.root_node)
+
+    def handle_dud_recipe(self, name, recipe: Recipe):
+        """
+        Take recipes that weren't able to be used in an 'allowed' recipe, but do exist in RECIPES. Adds them to a list
+        that ROS node reports later.
+
+        :param name: str Name of the recipe that came from the RECIPES dict
+        :param recipe: Recipe (not a RecipeNode) of a completed recipe that was deleted from the world
+        :return: None
+        """
+        print('dud', name, recipe)
+        self.dhtt_dud_recipes.append(recipe.root_node)

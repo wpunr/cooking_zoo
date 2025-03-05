@@ -1022,7 +1022,6 @@ class Agent(Object):
         :param arm: Which arm/holding slot to consider
         :return: True if all holding slots are empty
         """
-        return not any(self.holding)
         if arm is None:
             slc = slice(len(self.holding))
         else:
@@ -1063,8 +1062,6 @@ class Agent(Object):
 
 ####### Dispensers Differ from Drother moop in that they add the new object to their content, not agent.holding #######
 def CreateDispenserClass(addedObjectCls, derived_name: str, file_name: str):
-    # TODO left off here adding extra members to follow moop PlateDispenser
-
     def init_imp(self, location):
         unique_id = next(world_id_counter)
         super(cls, self).__init__(unique_id, location, False)
