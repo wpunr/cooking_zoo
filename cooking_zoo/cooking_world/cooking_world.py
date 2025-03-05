@@ -127,7 +127,6 @@ class CookingWorld:
         self.handle_agent_spawn()
         self.relevant_agents = self.compute_relevant_agents()
 
-    def resolve_primary_interaction(self, agent: Agent):
     def resolve_primary_interaction(self, agent: Agent, arm: int | None = None):
         interaction_location = self.get_target_location(agent, agent.orientation)
         if any([agent.location == interaction_location for agent in self.agents]):
