@@ -33,7 +33,7 @@ def get_next_default_id():
 
 def register_recipe(recipe, name):
     RECIPE_STORE[name] = lambda: deepcopy(recipe)
-    
+
 
 #  Basic food Items
 # root_type, id_num, parent=None, conditions=None, contains=None
@@ -77,7 +77,7 @@ TomatoLettuceOnionPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id
                                      contains=[ChoppedTomato, ChoppedLettuce, ChoppedOnion])
 
 CarrotBananaPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), name="Plate", conditions=None,
-                               contains=[ChoppedCarrot, ChoppedBanana])
+                               contains=[MashedCarrot, ChoppedBanana])
 
 MashedCarrotBananaPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), name="Plate", conditions=None,
                                      contains=[MashedCarrot, MashedBanana])
@@ -91,7 +91,16 @@ MashedCarrotPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), na
                                contains=[MashedCarrot])
 
 ToastedBreadPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), name="Plate", conditions=None,
-                               contains=[ToastedBread, deepcopy(ToastedBread)])  # chopping bread turns it into two
+                               contains=[ToastedBread])
+
+TomatoToastedBreadPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), name="Plate", conditions=None,
+                                     contains=[ToastedBread, ChoppedTomato])
+
+ApplePlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), name="Plate", conditions=None,
+                        contains=[ChoppedApple])
+
+WatermelonPlate = RecipeNode(root_type=Plate, id_num=get_next_default_id(), name="Plate", conditions=None,
+                             contains=[ChoppedWatermelon])
 
 # Delivered Salads
 TomatoSalad = RecipeNode(root_type=Deliversquare, id_num=get_next_default_id(), name="Deliversquare", conditions=None,
@@ -134,9 +143,12 @@ RECIPES = {"TomatoSalad": lambda: deepcopy(Recipe(TomatoSalad, DEFAULT_NUM_GOALS
            "TomatoLettucePlate": lambda: deepcopy(Recipe(TomatoLettucePlate, DEFAULT_NUM_GOALS)),
            "CarrotBananaPlate": lambda: deepcopy(Recipe(CarrotBananaPlate, DEFAULT_NUM_GOALS)),
            "MashedCarrotBananaPlate": lambda: deepcopy(Recipe(MashedCarrotBananaPlate, DEFAULT_NUM_GOALS)),
-           "CucumberOnionPlate": lambda: deepcopy(Recipe(CucumberOnionPlate, DEFAULT_NUM_GOALS)),
+           # "CucumberOnionPlate": lambda: deepcopy(Recipe(CucumberOnionPlate, DEFAULT_NUM_GOALS)),
            "AppleWatermelonPlate": lambda: deepcopy(Recipe(AppleWatermelonPlate, DEFAULT_NUM_GOALS)),
            "TomatoLettuceOnionPlate": lambda: deepcopy(Recipe(TomatoLettuceOnionPlate, DEFAULT_NUM_GOALS)),
            "MashedCarrotPlate": lambda: deepcopy(Recipe(MashedCarrotPlate, DEFAULT_NUM_GOALS)),
-           "ToastedBreadPlate": lambda: deepcopy(Recipe(ToastedBreadPlate, DEFAULT_NUM_GOALS))
+           "ToastedBreadPlate": lambda: deepcopy(Recipe(ToastedBreadPlate, DEFAULT_NUM_GOALS)),
+           "TomatoToastedBreadPlate": lambda: deepcopy(Recipe(TomatoToastedBreadPlate, DEFAULT_NUM_GOALS)),
+           "ApplePlate": lambda: deepcopy(Recipe(ApplePlate, DEFAULT_NUM_GOALS)),
+           "WatermelonPlate": lambda: deepcopy(Recipe(WatermelonPlate, DEFAULT_NUM_GOALS))
            }

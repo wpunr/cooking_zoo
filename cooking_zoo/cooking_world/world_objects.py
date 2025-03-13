@@ -884,7 +884,7 @@ class Bread(ChopFood, ToasterFood):
         self.chop_state = ChopFoodStates.FRESH
 
     def done(self):
-        return self.chop_state == ChopFoodStates.CHOPPED
+        # TODO ambiguous
         return self.chop_state == ChopFoodStates.CHOPPED or self.toast_state == ToasterFoodStates.TOASTED
 
     def chop(self):
@@ -904,7 +904,7 @@ class Bread(ChopFood, ToasterFood):
         return 3
 
     def feature_vector_representation(self):
-        return list(self.location) + [int(not self.done()), int(self.done())] + [1]
+        # TODO check this
         return list(self.location) + [int(not self.done()), int(self.done())] + [
             int(self.toast_state == ToasterFoodStates.TOASTED)] + [1]
 
