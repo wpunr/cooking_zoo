@@ -1,3 +1,21 @@
+Fork of [cooking_zoo](https://github.com/DavidRother/cooking_zoo/) for use with [dhtt_cooking](https://github.com/tylerjohnbecker/dhtt_base).
+
+We add features: Two arms for the agent/robot and implement/backport Toaster, AbsorbingDeliversquare, and dispensers. Plus some changes that help integration into dhtt_cooking. 
+
+Cite the original paper:
+```
+@inproceedings{rother2023disentangling,
+  title={Disentangling Interaction using MaximumEntropy Reinforcement Learning in Multi-Agent Systems},
+  author={Rother, David and Weisswange, Thomas and Peters, Jan},
+  booktitle={European Conference on Artificial Intelligence},
+  year={2023}
+}
+```
+
+---
+
+Below is the original README for usage.
+
 # Code for CookingZoo
 
 Contents:
