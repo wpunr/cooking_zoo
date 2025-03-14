@@ -489,7 +489,7 @@ class Toaster(StaticObject, ProcessingObject, ContentObject, ToggleObject, Actio
     def add_content(self, content):
         if self.accepts(content):
             self.content.append(content)
-            if len(self.content) == self.max_content:
+            if len(self.content) <= self.max_content:
                 for cont in self.content:
                     cont.toast_state = ToasterFoodStates.READY
                 self.status = ActionObjectState.READY
