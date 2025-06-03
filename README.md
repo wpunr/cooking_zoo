@@ -2,6 +2,13 @@ Fork of [cooking_zoo](https://github.com/DavidRother/cooking_zoo/) for use with 
 
 We add features: Two arms for the agent/robot and implement/backport Toaster, AbsorbingDeliversquare, and dispensers. Plus some changes that help integration into dhtt_cooking. 
 
+Install as
+```
+git clone https://github.com/wpunr/cooking_zoo.git
+cd cooking_zoo
+pip3 install -e .
+```
+
 Cite the original paper:
 ```
 @inproceedings{rother2023disentangling,
