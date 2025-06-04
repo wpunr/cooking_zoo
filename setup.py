@@ -10,7 +10,7 @@ setup(name='cooking_zoo',
       install_requires=[
             'numpy',
             'pygame',
-            'pettingzoo >= 1.24, < 1.25',
+            'pettingzoo==1.24.3',
             'Pillow',
             'Gymnasium>=0.26'
       ]
