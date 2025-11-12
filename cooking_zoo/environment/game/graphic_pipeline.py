@@ -174,7 +174,7 @@ class GraphicPipeline:
         self.screen.blit(image, location)
 
         if text:
-            text_surface_object = self.font.render()
+            text_surface_object = self.font.render(text, True, pygame.color.Color(255, 0, 255))
             text_field = text_surface_object.get_rect()
             text_field.center = (location[0] + size[0] // 2, location[1] + size[1] // 2)
             self.screen.blit(text_surface_object, text_field)

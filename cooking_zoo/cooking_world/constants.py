@@ -5,12 +5,10 @@ class ChopFoodStates(Enum):
     FRESH = "Fresh"
     CHOPPED = "Chopped"
 
-
 class BlenderFoodStates(Enum):
     FRESH = "Fresh"
     IN_PROGRESS = "InProgress"
     MASHED = "Mashed"
-
 
 class ToasterFoodStates(Enum):
     FRESH = "Fresh"
@@ -18,19 +16,23 @@ class ToasterFoodStates(Enum):
     IN_PROGRESS = "InProgress"
     TOASTED = "Toasted"
 
-
 class MicrowaveFoodStates(Enum):
     FRESH = "Fresh"
     READY = "Ready"
     IN_PROGRESS = "InProgress"
     HOT = "Hot"
 
-
 class PotFoodStates(Enum):
     FRESH = "Fresh"
     READY = "Ready"
     IN_PROGRESS = "InProgress"
     COOKED = "Cooked"
+
+class PanFoodStates(Enum):
+    FRESH = "Fresh"
+    READY = "Ready"
+    IN_PROGRESS = "InProgress"
+    FRIED = "Fried"
 
 
 # add foodstates, tempstates, and more?, basic attributes to all foods automatically?

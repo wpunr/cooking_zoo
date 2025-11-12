@@ -1,21 +1,26 @@
 {
-  "LEVEL_LAYOUT": "-------\n-     -\n-     -\n-     -\n-     -\n-     -\n-------",
+  "LEVEL_LAYOUT": "---------\n-       -\n-  - -  -\n-  - -  -\n-  - -  -\n-  - -  -\n-  - -  -\n-       -\n---------",
 
   "STATIC_OBJECTS": [
-    {"Cutboard": {"COUNT": 1, "X_POSITION": [0], "Y_POSITION":  [1, 2, 3, 4, 5]}},
-    {"Toaster": {"COUNT": 1, "X_POSITION": [6], "Y_POSITION":  [1, 2, 3, 4, 5]}},
-    {"Blender": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5], "Y_POSITION":  [0]}},
-    {"AbsorbingDeliversquare": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5], "Y_POSITION":  [6]}},
-    {"PlateDispenser":  {"COUNT": 1, "X_POSITION": [0], "Y_POSITION":  [1, 2, 3, 4, 5]}},
-    {"TomatoDispenser": {"COUNT": 1, "X_POSITION": [6], "Y_POSITION":  [1, 2, 3, 4, 5]}},
-    {"BreadDispenser": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5], "Y_POSITION":  [0]}},
-    {"CarrotDispenser": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5], "Y_POSITION":  [0]}},
-    {"BananaDispenser": {"COUNT": 1, "X_POSITION": [0], "Y_POSITION":  [1, 2, 3, 4, 5]}},
-    {"AppleDispenser": {"COUNT": 1, "X_POSITION": [6], "Y_POSITION":  [1, 2, 3, 4, 5]}},
-    {"WatermelonDispenser": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5], "Y_POSITION": [6]}},
-    {"LettuceDispenser": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5], "Y_POSITION": [6]}}
+    {"Cutboard": {"COUNT": 1, "X_POSITION": [0, 8], "Y_POSITION":  [1, 2, 3, 4, 5, 6, 7]}},
+    {"Toaster": {"COUNT": 1, "X_POSITION": [0, 8], "Y_POSITION":  [1, 2, 3, 4, 5, 6, 7]}},
+    {"Blender": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5, 6, 7], "Y_POSITION":   [0, 8]}},
+    {"Pot": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5, 6, 7], "Y_POSITION":  [0, 8]}},
+    {"Pan": {"COUNT": 1, "X_POSITION":  [0, 8], "Y_POSITION":  [1, 2, 3, 4, 5, 6, 7]}},
+    {"AbsorbingDeliversquare": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5, 6, 7], "Y_POSITION":   [0, 8]}},
+    {"PlateDispenser":  {"COUNT": 1, "X_POSITION":  [0, 8], "Y_POSITION":  [1, 2, 3, 4, 5, 6, 7]}},
+    {"TomatoDispenser": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5, 6, 7] , "Y_POSITION":  [0, 8] }},
+    {"BreadDispenser": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5, 6, 7], "Y_POSITION":   [0, 8]}},
+    {"BananaDispenser": {"COUNT": 1, "X_POSITION":  [0, 8], "Y_POSITION":  [1, 2, 3, 4, 5, 6, 7]}},
+    {"LettuceDispenser": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5, 6, 7], "Y_POSITION":  [0, 8]}},
+    {"PastaDispenser": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5, 6, 7], "Y_POSITION":  [0, 8]}},
+    {"EggDispenser": {"COUNT": 1, "X_POSITION":  [0, 8], "Y_POSITION": [1, 2, 3, 4, 5, 6, 7]}},
+    {"OnionDispenser": {"COUNT": 1, "X_POSITION":  [0, 8], "Y_POSITION": [1, 2, 3, 4, 5, 6, 7]}},
+    {"IceDispenser": {"COUNT": 1, "X_POSITION": [0, 8], "Y_POSITION": [1, 2, 3, 4, 5, 6, 7]}},
+    {"StrawberryDispenser": {"COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5, 6, 7], "Y_POSITION": [0, 8]}}
+
   ],
   "DYNAMIC_OBJECTS": [],
-  "AGENTS": [{"MAX_COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5], "Y_POSITION":  [1, 2, 3, 4, 5]}],
-  "DYNAMIC_EXCLUDED_POSITIONS": [[0, 0], [3, 0], [6, 0], [0, 6], [3, 6], [6, 6]]
+  "AGENTS": [{"MAX_COUNT": 1, "X_POSITION": [1, 2, 3, 4, 5, 6, 7], "Y_POSITION":  [1, 2, 3, 4, 5, 6, 7]}],
+  "DYNAMIC_EXCLUDED_POSITIONS": [[0, 0], [3, 0], [8, 0], [0, 8], [3, 8], [8, 8]]
 }

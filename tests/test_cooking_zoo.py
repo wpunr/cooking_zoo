@@ -7,7 +7,7 @@ from cooking_zoo.cooking_world.constants import ChopFoodStates, ToasterFoodState
 from cooking_zoo.cooking_world.cooking_world import CookingWorld
 from cooking_zoo.cooking_world.world_objects import Lettuce, Tomato, Plate, Deliversquare, Bread, Counter, Agent, \
     PlateDispenser, AppleDispenser, OnionDispenser, BananaDispenser, CarrotDispenser, TomatoDispenser, LettuceDispenser, \
-    WatermelonDispenser, BreadDispenser
+    WatermelonDispenser, BreadDispenser, PastaDispenser
 from cooking_zoo.cooking_book.recipe import Recipe
 from cooking_zoo.cooking_book.recipe_drawer import TomatoLettucePlate, ChoppedLettuce, ChoppedTomato, \
     TomatoLettuceSalad, ChoppedOnion, DEFAULT_NUM_GOALS, ChoppedBread, ToastedBread, ToastedBreadPlate
@@ -356,7 +356,7 @@ class TestCookingZoo:
 
     def test_dispensers(self):
         for cls in {PlateDispenser, AppleDispenser, OnionDispenser, BananaDispenser, CarrotDispenser, TomatoDispenser,
-                    LettuceDispenser, WatermelonDispenser, BreadDispenser}:
+                    LettuceDispenser, WatermelonDispenser, BreadDispenser, PastaDispenser}:
             dispenser = cls((0, 0))
             added, removed, suc = dispenser.action()
             assert len(added) == 1

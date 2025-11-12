@@ -127,7 +127,7 @@ class CookingWorld:
         self.handle_agent_spawn()
         self.relevant_agents = self.compute_relevant_agents()
 
-    def resolve_primary_interaction(self, agent: Agent, arm: int | None = None):
+    def resolve_primary_interaction(self, agent: Agent, arm=None):
         interaction_location = self.get_target_location(agent, agent.orientation)
         if any([agent.location == interaction_location for agent in self.agents]):
             return
@@ -163,7 +163,7 @@ class CookingWorld:
         elif not agent.holding_empty(arm):
             self.attempt_merge(agent, dynamic_objects, interaction_location, static_object, arm)
 
-    def resolve_interaction_pick_up_special(self, agent: Agent, arm: int | None = None):
+    def resolve_interaction_pick_up_special(self, agent: Agent, arm=None):
         interaction_location = self.get_target_location(agent, agent.orientation)
         if any([agent.location == interaction_location for agent in self.agents]):
             return
@@ -181,7 +181,7 @@ class CookingWorld:
         else:
             return
 
-    def resolve_execute_action(self, agent: Agent, arm: int | None = None):
+    def resolve_execute_action(self, agent: Agent, arm=None):
         interaction_location = self.get_target_location(agent, agent.orientation)
         if any([agent.location == interaction_location for agent in self.agents]):
             return
@@ -275,7 +275,7 @@ class CookingWorld:
         return located_objects
 
     def attempt_merge(self, agent: Agent, dynamic_objects: List[DynamicObject], target_location, static_object,
-                      arm: int | None = None):
+                      arm=None):
         content_obj = self.filter_obj(dynamic_objects, ContentObject)
         if content_obj and len(content_obj) == 1:
             acceptable_agent_holding: Object = agent.find_appropriate_holding(content_obj[0].accepts, arm)

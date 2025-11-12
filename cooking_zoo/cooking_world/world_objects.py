@@ -150,6 +150,8 @@ class AbsorbingDeliversquare(StaticObject, ContentObject, ProgressingObject):
         self.internal_id = 1
         self.timer = 1
 
+        self.deliver = 0
+
     def accepts(self, dynamic_object) -> bool:
         return len(self.content) < self.max_content
 
@@ -164,6 +166,8 @@ class AbsorbingDeliversquare(StaticObject, ContentObject, ProgressingObject):
                 content_objs.extend(get_recursive_content_objects(cont))
             deleted_obj_list = content_objs
             self.content = []
+
+            self.deliver += 1
         else:
             deleted_obj_list = []
         new_obj_list = []
@@ -200,7 +204,7 @@ class AbsorbingDeliversquare(StaticObject, ContentObject, ProgressingObject):
         return []
 
     def display_text(self) -> str:
-        return ""
+        return f"{self.deliver}"
 
 
 
@@ -379,13 +383,12 @@ class Blender(StaticObject, ProcessingObject, ContentObject, ToggleObject, Actio
     def __init__(self, location):
         unique_id = next(world_id_counter)
         super().__init__(unique_id, location, False)
-        self.max_content = 1
-
+        self.max_content = 10
+        
     def process(self):
         assert len(self.content) <= self.max_content, "Too many Dynamic Objects placed into the Blender"
 
         if self.content and self.toggle:
-
             for con in self.content:
                 con.blend()
 
@@ -394,10 +397,19 @@ class Blender(StaticObject, ProcessingObject, ContentObject, ToggleObject, Actio
 
                 self.status = ActionObjectState.NOT_USABLE
 
-                for cont in self.content:
-                    cont.current_progress = cont.min_progress
+                to_delete = []
 
-        return [], []  # no added or deleted objects
+                for obj in self.content:
+                    to_delete.append(obj)
+
+                self.content = []
+                to_add = Smoothie(self.location, True)
+                
+                self.content.append(to_add)
+
+                return self.content, to_delete 
+            
+        return [], [] # no added or deleted objects
 
     def accepts(self, dynamic_object) -> bool:
         return isinstance(dynamic_object, BlenderFood) and (not self.toggle) and len(self.content) + 1 <= self.max_content and dynamic_object.blend_state == BlenderFoodStates.FRESH
@@ -534,6 +546,171 @@ class Toaster(StaticObject, ProcessingObject, ContentObject, ToggleObject, Actio
     def display_text(self) -> str:
         return ""
 
+
+class Pot(StaticObject, ProcessingObject, ContentObject, ToggleObject, ActionObject):
+
+    def __init__(self, location):
+        unique_id = next(world_id_counter)
+        super().__init__(unique_id, location, False)
+        self.max_content = 1  # TODO
+
+    def process(self):
+        assert len(self.content) <= self.max_content, "Too many Dynamic Objects placed into the Pot"
+
+        if self.content and self.toggle:
+            for cont in self.content:
+                print("boil")
+                cont.boil()
+
+            if all([cont.boil_state == PotFoodStates.COOKED for cont in self.content]):
+                self.switch_toggle()
+
+                self.status = ActionObjectState.NOT_USABLE
+
+                for cont in self.content:
+                    cont.current_progress = cont.min_progress
+
+        return [], []  # no added or deleted objects
+
+    def accepts(self, dynamic_object) -> bool:
+        return isinstance(dynamic_object, PotFood) and (not self.toggle) and len(
+            self.content) + 1 <= self.max_content and dynamic_object.boil_state in {PotFoodStates.FRESH,
+                                                                                     PotFoodStates.READY}
+
+    def releases(self) -> bool:
+        valid = not self.toggle
+        if valid:
+            # if last removed, not usable
+            if len(self.content) - 1 == 0:
+                self.status = ActionObjectState.NOT_USABLE
+        return valid
+
+    def add_content(self, content):
+        if self.accepts(content):
+            self.content.append(content)
+            if len(self.content) <= self.max_content:
+                for cont in self.content:
+                    cont.boil_state = PotFoodStates.READY
+                self.status = ActionObjectState.READY
+            for c in self.content:
+                c.free = False
+            self.content[-1].free = True
+
+    def action(self) -> Tuple[List, List, bool]:
+        valid = self.status == ActionObjectState.READY
+        if valid:
+            self.switch_toggle()
+        return [], [], valid
+
+    def numeric_state_representation(self):
+        return 1,
+
+    @classmethod
+    def state_length(cls):
+        return 1
+
+    def feature_vector_representation(self):
+        # TODO check this
+        return list(self.location) + [1]
+
+    @classmethod
+    def feature_vector_length(cls):
+        return 3
+
+    def file_name(self) -> str:
+        if self.toggle:
+            return "Pot_on"
+        else:
+            return "Pot"
+
+    def icons(self) -> List[str]:
+        return []
+
+    def display_text(self) -> str:
+        return ""
+
+class Pan(StaticObject, ProcessingObject, ContentObject, ToggleObject, ActionObject):
+
+    def __init__(self, location):
+        unique_id = next(world_id_counter)
+        super().__init__(unique_id, location, False)
+        self.max_content = 1  # TODO
+
+    def process(self):
+        assert len(self.content) <= self.max_content, "Too many Dynamic Objects placed into the Pan"
+
+        if self.content and self.toggle:
+            for cont in self.content:
+                print("fry")
+                cont.fry()
+
+            if all([cont.fry_state == PanFoodStates.FRIED for cont in self.content]):
+                self.switch_toggle()
+
+                self.status = ActionObjectState.NOT_USABLE
+
+                for cont in self.content:
+                    cont.current_progress = cont.min_progress
+
+        return [], []  # no added or deleted objects
+
+    def accepts(self, dynamic_object) -> bool:
+        return isinstance(dynamic_object, PanFood) and (not self.toggle) and len(
+            self.content) + 1 <= self.max_content and dynamic_object.fry_state in {PanFoodStates.FRESH,
+                                                                                     PanFoodStates.READY}
+
+    def releases(self) -> bool:
+        valid = not self.toggle
+        if valid:
+            # if last removed, not usable
+            if len(self.content) - 1 == 0:
+                self.status = ActionObjectState.NOT_USABLE
+        return valid
+
+    def add_content(self, content):
+        if self.accepts(content):
+            self.content.append(content)
+            if len(self.content) <= self.max_content:
+                for cont in self.content:
+                    cont.fry_state = PanFoodStates.READY
+                self.status = ActionObjectState.READY
+            for c in self.content:
+                c.free = False
+            self.content[-1].free = True
+
+    def action(self) -> Tuple[List, List, bool]:
+        valid = self.status == ActionObjectState.READY
+        if valid:
+            self.switch_toggle()
+        return [], [], valid
+
+    def numeric_state_representation(self):
+        return 1,
+
+    @classmethod
+    def state_length(cls):
+        return 1
+
+    def feature_vector_representation(self):
+        # TODO check this
+        return list(self.location) + [1]
+
+    @classmethod
+    def feature_vector_length(cls):
+        return 3
+
+    def file_name(self) -> str:
+        if self.toggle:
+            return "Pan_on"
+        else:
+            return "Pan"
+
+    def icons(self) -> List[str]:
+        return []
+
+    def display_text(self) -> str:
+        return ""
+
 class Plate(DynamicObject, ContentObject):
 
     def __init__(self, location):
@@ -582,6 +759,113 @@ class Plate(DynamicObject, ContentObject):
     def display_text(self) -> str:
         return ""
 
+class Tomato(ChopFood, PanFood):
+
+    def __init__(self, location):
+        unique_id = next(world_id_counter)
+        super().__init__(unique_id, location)
+
+    def done(self):
+        return self.chop_state == ChopFoodStates.CHOPPED or self.fry_state == PanFoodStates.FRIED
+
+    def numeric_state_representation(self):
+        return 1, 0, 0
+
+    def feature_vector_representation(self):
+        return list(self.location) + [int(not self.done()), int(self.done())] + [int(self.fry_state == PanFoodStates.FRIED)] + [1]
+
+    @classmethod
+    def state_length(cls):
+        return 3
+
+    @classmethod
+    def feature_vector_length(cls):
+        return 6
+
+    def file_name(self) -> str:
+        if self.fry_state == PanFoodStates.FRIED:
+            return "TomatoSauce"
+        elif self.chop_state == ChopFoodStates.CHOPPED:
+            return "ChoppedTomato"
+        else:
+            return "FreshTomato"
+
+    def icons(self) -> List[str]:
+        return []
+
+    def display_text(self) -> str:
+        return ""
+    
+class Pasta(PotFood):
+
+    def __init__(self, location): 
+        unique_id = next(world_id_counter)
+        super().__init__(unique_id, location)
+
+    def done(self):
+        return self.boil_state == PotFoodStates.COOKED
+    
+    def numeric_state_representation(self):
+        return 1, 0, 0
+    
+    def feature_vector_representation(self):
+        return list(self.location) + [int(not self.done()), int(self.done())] + [1]
+    
+    @classmethod
+    def state_length(cls):
+        return 3
+    
+    @classmethod
+    def feature_vector_length(cls):
+        return 5
+
+    def file_name(self) -> str:
+        if self.boil_state == PotFoodStates.COOKED:
+            return "PenneCooked"
+        else:
+            return "PenneRaw"
+
+    def icons(self) -> List[str]:
+        return []
+
+    def display_text(self) -> str:
+        return f""
+
+class Egg(PanFood):
+
+    def __init__(self, location): 
+        unique_id = next(world_id_counter)
+        super().__init__(unique_id, location)
+
+    def done(self):
+        return self.fry_state == PanFoodStates.FRIED
+    
+    def numeric_state_representation(self):
+        return 1, 0
+    
+    def feature_vector_representation(self):
+        return list(self.location) + [int(not self.done()), int(self.done())] + [1]
+    
+    @classmethod
+    def state_length(cls):
+        return 2
+    
+    @classmethod
+    def feature_vector_length(cls):
+        return 5
+
+    def file_name(self) -> str:
+        if self.done():
+            return "FriedEgg"
+        else:
+            return "Egg"
+
+    def icons(self) -> List[str]:
+        return []
+
+    def display_text(self) -> str:
+        return f""
+
 
 class Onion(ChopFood):
 
@@ -618,43 +902,6 @@ class Onion(ChopFood):
     def display_text(self) -> str:
         return ""
 
-
-class Tomato(ChopFood):
-
-    def __init__(self, location):
-        unique_id = next(world_id_counter)
-        super().__init__(unique_id, location)
-
-    def done(self):
-        return self.chop_state == ChopFoodStates.CHOPPED
-
-    def numeric_state_representation(self):
-        return 1, int(self.chop_state == ChopFoodStates.CHOPPED)
-
-    def feature_vector_representation(self):
-        return list(self.location) + [int(not self.done()), int(self.done())] + [1]
-
-    @classmethod
-    def state_length(cls):
-        return 2
-
-    @classmethod
-    def feature_vector_length(cls):
-        return 5
-
-    def file_name(self) -> str:
-        if self.done():
-            return "ChoppedTomato"
-        else:
-            return "FreshTomato"
-
-    def icons(self) -> List[str]:
-        return []
-
-    def display_text(self) -> str:
-        return ""
-
-
 class Lettuce(ChopFood):
 
     def __init__(self, location):
@@ -689,7 +936,106 @@ class Lettuce(ChopFood):
 
     def display_text(self) -> str:
         return ""
+    
+class Smoothie(BlenderFood):
 
+    def __init__(self, location, made_correctly=False):
+        if not made_correctly:
+            raise RuntimeError("Made smoothie outside of blender class. Returning in error.")
+        unique_id = next(world_id_counter)
+        super().__init__(unique_id, location)
+
+        self.blend_state = BlenderFoodStates.MASHED
+
+    def done(self):
+        return self.blend_state == BlenderFoodStates.MASHED
+
+    def numeric_state_representation(self):
+        return 1, int(self.blend_state == BlenderFoodStates.MASHED)
+
+    def feature_vector_representation(self):
+        return list(self.location) + [int(not self.done()), int(self.done())] + [1]
+
+    @classmethod
+    def state_length(cls):
+        return 2
+
+    @classmethod
+    def feature_vector_length(cls):
+        return 5
+
+    def file_name(self) -> str:
+        return "Smoothie"
+    
+    def icons(self) -> List[str]:
+        return []
+
+    def display_text(self) -> str:
+        return ""
+
+class Ice(BlenderFood):
+
+    def __init__(self, location):
+        unique_id = next(world_id_counter)
+        super().__init__(unique_id, location)
+
+    def done(self):
+        return self.blend_state == BlenderFoodStates.MASHED
+
+    def numeric_state_representation(self):
+        return 1, int(self.blend_state == BlenderFoodStates.MASHED)
+
+    def feature_vector_representation(self):
+        return list(self.location) + [int(not self.done()), int(self.done())] + [1]
+
+    @classmethod
+    def state_length(cls):
+        return 2
+
+    @classmethod
+    def feature_vector_length(cls):
+        return 5
+
+    def file_name(self) -> str:
+        return "Ice"
+    
+    def icons(self) -> List[str]:
+        return []
+
+    def display_text(self) -> str:
+        return ""
+    
+class Strawberry(BlenderFood):
+
+    def __init__(self, location):
+        unique_id = next(world_id_counter)
+        super().__init__(unique_id, location)
+
+    def done(self):
+        return self.blend_state == BlenderFoodStates.MASHED
+
+    def numeric_state_representation(self):
+        return 1, int(self.blend_state == BlenderFoodStates.MASHED)
+
+    def feature_vector_representation(self):
+        return list(self.location) + [int(not self.done()), int(self.done())] + [1]
+
+    @classmethod
+    def state_length(cls):
+        return 2
+
+    @classmethod
+    def feature_vector_length(cls):
+        return 5
+
+    def file_name(self) -> str:
+        return "Strawberry"
+    
+    def icons(self) -> List[str]:
+        return []
+
+    def display_text(self) -> str:
+        return ""
 
 class Carrot(BlenderFood, ChopFood):
 
@@ -771,7 +1117,7 @@ class Banana(BlenderFood, ChopFood):
         super().__init__(unique_id, location)
 
     def done(self):
-        return self.chop_state == ChopFoodStates.CHOPPED or self.blend_state == BlenderFoodStates.MASHED
+        return self.blend_state == BlenderFoodStates.MASHED
 
     def numeric_state_representation(self):
         return 1, int(self.chop_state == ChopFoodStates.CHOPPED)
@@ -789,11 +1135,8 @@ class Banana(BlenderFood, ChopFood):
         return 6
 
     def file_name(self) -> str:
-        if self.done():
-            if self.chop_state == ChopFoodStates.CHOPPED:
-                return "ChoppedBanana"
-            elif self.blend_state == BlenderFoodStates.MASHED:
-                return "ChoppedBanana"
+        if self.chop_state == ChopFoodStates.CHOPPED:
+            return "ChoppedBanana"
         else:
             return "FreshBanana"
 
@@ -939,7 +1282,7 @@ class Agent(Object):
         self.orientation = 1
         self.interacts_with = []
 
-    def grab(self, obj: DynamicObject, arm: int | None = None):
+    def grab(self, obj: DynamicObject, arm=None):
         """Insert `obj` into the first available slot in holding"""
         if arm is None:
             slc = slice(len(self.holding))
@@ -952,8 +1295,9 @@ class Agent(Object):
             obj.move_to(self.location)
         else:
             print("No free holding slot")
+            raise Exception("Failed to grab object.")
 
-    def put_down(self, location, obj: Object, arm: int | None = None):
+    def put_down(self, location, obj: Object, arm=None):
         idx = self.holding.index(obj)  # raises if object not in holding
 
         if arm is not None:
@@ -1003,7 +1347,7 @@ class Agent(Object):
     def display_text(self) -> str:
         return ""
 
-    def find_appropriate_holding(self, predicate: Callable[[Object], bool], arm: int | None = None) -> Object | None:
+    def find_appropriate_holding(self, predicate, arm= None):
         """
         Find first object in Agent.holding that satisfies `predicate`
 
@@ -1017,7 +1361,7 @@ class Agent(Object):
             slc = slice(arm, arm + 1)
         return next((obj for obj in self.holding[slc] if predicate(obj) and obj is not None), None)
 
-    def holding_empty(self, arm: int | None = None):
+    def holding_empty(self, arm=None):
         """
         :param arm: Which arm/holding slot to consider
         :return: True if all holding slots are empty
@@ -1028,7 +1372,7 @@ class Agent(Object):
             slc = slice(arm, arm + 1)
         return not any(self.holding[slc])
 
-    def holding_has_free(self, arm: int | None = None):
+    def holding_has_free(self, arm=None):
         """
         :param arm: Which arm/holding slot to consider
         :return: True if any free holding slot exists
@@ -1044,7 +1388,7 @@ class Agent(Object):
         return self._holding
 
     # Private
-    def _find_free_holding(self, slc: slice) -> int | None:
+    def _find_free_holding(self, slc: slice):
         """
         Find first free slot in Agent.holding, limited to /slc/
 
@@ -1141,6 +1485,10 @@ TomatoDispenser = CreateDispenserClass(Tomato, "TomatoDispenser", "DispenserToma
 LettuceDispenser = CreateDispenserClass(Lettuce, "LettuceDispenser", "DispenserLettuce")
 WatermelonDispenser = CreateDispenserClass(Watermelon, "WatermelonDispenser", "DispenserWatermelon")
 BreadDispenser = CreateDispenserClass(Bread, "BreadDispenser", "DispenserBread")
+PastaDispenser = CreateDispenserClass(Pasta, "PastaDispenser", "DispenserPenne")
+EggDispenser = CreateDispenserClass(Egg, "EggDispenser", "DispenserEgg")
+IceDispenser = CreateDispenserClass(Ice, "IceDispenser", "DispenserIce")
+StrawberryDispenser = CreateDispenserClass(Strawberry, "StrawberryDispenser", "DispenserStrawberry")
 
 GAME_CLASSES = [m[1] for m in inspect.getmembers(sys.modules[__name__], inspect.isclass) if m[1].__module__ == __name__]
 

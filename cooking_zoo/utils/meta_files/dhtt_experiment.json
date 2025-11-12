@@ -1,16 +1,20 @@
 [
   {"Agent": 1},
-  {"Counter": 24},
+  {"Counter": 32},
   {"Cutboard": 1},
   {"Toaster": 1},
   {"Blender": 1},
+  {"Pot": 1},
+  {"Pan": 1}, 
   {"AbsorbingDeliversquare": 1},
   {"PlateDispenser":  1},
   {"TomatoDispenser": 1},
   {"BreadDispenser": 1},
-  {"CarrotDispenser": 1},
   {"BananaDispenser": 1},
-  {"AppleDispenser": 1},
-  {"WatermelonDispenser": 1},
-  {"LettuceDispenser": 1}
+  {"LettuceDispenser": 1},
+  {"PastaDispenser": 1},
+  {"EggDispenser": 1},
+  {"OnionDispenser": 1},
+  {"StrawberryDispenser": 1},
+  {"IceDispenser": 1}
 ]

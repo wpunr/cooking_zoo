@@ -165,7 +165,7 @@ class ProgressingObject(ABC):
         super(ProgressingObject, self).__init__()
 
     @abstractmethod
-    def progress(self) -> tuple[list, list]:
+    def progress(self) -> Tuple[list, list]:
         """
         :return: list of created objects and list of deleted objects
         """
@@ -261,9 +261,9 @@ class BlenderFood(DynamicObject, Food, ABC):
 
     def __init__(self, unique_id, location):
         super().__init__(unique_id, location)
-        self.current_progress = 1
+        self.current_progress = 5
         self.max_progress = 0
-        self.min_progress = 1
+        self.min_progress = 5
         self.blend_state = BlenderFoodStates.FRESH
 
     def blend(self):
@@ -280,9 +280,9 @@ class ToasterFood(DynamicObject, Food, ABC):
 
     def __init__(self, unique_id, location):
         super().__init__(unique_id, location)
-        self.current_progress = 5
+        self.current_progress = 15
         self.max_progress = 0
-        self.min_progress = 5
+        self.min_progress = 15
         self.toast_state = ToasterFoodStates.FRESH
 
     def toast(self):
@@ -316,9 +316,9 @@ class PotFood(DynamicObject, Food, ABC):
 
     def __init__(self, unique_id, location):
         super().__init__(unique_id, location)
-        self.current_progress = 1
+        self.current_progress = 12
         self.max_progress = 0
-        self.min_progress = 1
+        self.min_progress = 12
         self.boil_state = PotFoodStates.FRESH
 
     def boil(self):
@@ -329,6 +329,22 @@ class PotFood(DynamicObject, Food, ABC):
             return True
         return False
 
+class PanFood(DynamicObject, Food, ABC):
+
+    def __init__(self, unique_id, location):
+        super().__init__(unique_id, location)
+        self.current_progress = 10
+        self.max_progress = 0
+        self.min_progress = 10
+        self.fry_state = PanFoodStates.FRESH
+
+    def fry(self):
+        if self.fry_state == PanFoodStates.READY or self.fry_state == PanFoodStates.IN_PROGRESS:
+            self.current_progress -= 1
+            self.fry_state = PanFoodStates.IN_PROGRESS if self.current_progress > self.max_progress \
+                else PanFoodStates.FRIED
+            return True
+        return False
 
 ABSTRACT_GAME_CLASSES = [m[1] for m in inspect.getmembers(sys.modules[__name__], inspect.isclass)
                          if m[1].__module__ == __name__]
