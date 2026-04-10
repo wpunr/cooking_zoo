@@ -21,6 +21,6 @@
 
   ],
   "DYNAMIC_OBJECTS": [],
-  "AGENTS": [{"MAX_COUNT": 1, "X_POSITION": [4], "Y_POSITION":  [4]}],
-  "DYNAMIC_EXCLUDED_POSITIONS": [[0, 0], [3, 0], [8, 0], [0, 8], [3, 8], [8, 8]]
+  "AGENTS": [{"MAX_COUNT": 1, "X_POSITION": [1], "Y_POSITION":  [1]}],
+  "DYNAMIC_EXCLUDED_POSITIONS": []
 }
